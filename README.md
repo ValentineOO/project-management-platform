@@ -6,8 +6,8 @@ A production-minded project and task management platform built with Next.js and 
 
 | Layer | Technology |
 |---|---|
-| Frontend | Next.js 14 (TypeScript, App Router) |
-| Backend | Laravel 11 (REST API) |
+| Frontend | Next.js 16 (TypeScript, App Router, React 19) |
+| Backend | Laravel 13 (PHP 8.5, REST API) |
 | Database | PostgreSQL 16 |
 | Cache / Queue | Redis 7 |
 | Auth | Laravel Sanctum (SPA cookie mode) |
@@ -16,30 +16,53 @@ A production-minded project and task management platform built with Next.js and 
 ## Quick Start
 
 ```bash
-cp .env.example .env
-make build
-make dev
-make migrate
-make seed
+# 1. Copy environment file
+cp backend/.env.example backend/.env
+# Edit backend/.env — set APP_KEY, DB_PASSWORD, etc.
+
+# 2. Build and start all containers
+docker compose up -d --build
+
+# 3. Run database migrations
+docker compose exec backend php artisan migrate
+
+# 4. (Optional) Seed demo data
+docker compose exec backend php artisan db:seed
 ```
 
-- Frontend: http://localhost:3000
-- Backend API: http://localhost:8000
-- Via Nginx: http://localhost:80
+| URL | Service |
+|---|---|
+| http://localhost:3000 | Frontend (Next.js) |
+| http://localhost:8000 | Backend API (Laravel) |
+| http://localhost:8082 | App via Nginx reverse proxy |
 
 ## Development
 
 ```bash
-make logs          # tail all container logs
-make shell-backend # shell into Laravel container
-make test          # run all tests
-make fresh         # reset and reseed database
+# Tail all container logs
+docker compose logs -f
+
+# Shell into the backend container
+docker compose exec backend bash
+
+# Run the backend test suite
+docker compose exec backend php artisan test
+
+# Reset and reseed the database
+docker compose exec backend php artisan migrate:fresh --seed
+```
+
+## Tests
+
+```bash
+# Backend feature + unit tests (Pest)
+docker compose exec backend php artisan test --parallel
+
+# Frontend type-check
+docker compose exec frontend npx tsc --noEmit
 ```
 
 ## Documentation
 
-- [Architecture](docs/architecture.md)
-- [Database Design](docs/database-design.md)
-- [API Reference](docs/api.md)
-- [Deployment](docs/deployment.md)
-- [ADRs](docs/adr/)
+- [ADRs](docs/adr/) — major engineering decisions
+- [Kubernetes](infrastructure/k8s/) — deployment manifests

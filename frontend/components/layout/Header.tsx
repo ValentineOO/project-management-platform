@@ -2,7 +2,6 @@
 
 import { useEffect, useState } from 'react'
 import { LogOut, Search, User as UserIcon } from 'lucide-react'
-import { Avatar, AvatarFallback } from '@/components/ui/avatar'
 import { Button } from '@/components/ui/button'
 import {
   DropdownMenu,
@@ -57,9 +56,9 @@ export function Header() {
             aria-label={`User menu for ${user.name}`}
             className="inline-flex items-center gap-2 rounded-md px-2 py-1.5 text-sm font-medium transition-colors hover:bg-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
           >
-            <Avatar className="h-7 w-7">
-              <AvatarFallback className="text-xs">{getInitials(user.name)}</AvatarFallback>
-            </Avatar>
+            <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-muted text-xs font-semibold select-none" aria-hidden="true">
+              {getInitials(user.name)}
+            </span>
             <span className="hidden sm:block">{user.name}</span>
           </DropdownMenuTrigger>
 

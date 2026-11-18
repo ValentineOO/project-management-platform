@@ -49,7 +49,7 @@ class ProjectController extends Controller
             ->pluck('total', 'status');
 
         return response()->json([
-            'project' => $project->load('owner', 'team', 'members:id,name'),
+            'project' => $project->load(['owner', 'team', 'members' => fn ($q) => $q->select('users.id', 'users.name')]),
             'task_stats' => $taskStats,
         ]);
     }
