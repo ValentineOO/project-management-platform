@@ -4,7 +4,7 @@ import { useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { Sidebar } from '@/components/layout/Sidebar'
 import { Header } from '@/components/layout/Header'
-import { Spinner } from '@/components/ui/spinner'
+import { AppShellSkeleton } from '@/components/layout/AppShellSkeleton'
 import { useAuthContext } from '@/contexts/AuthContext'
 
 export default function AppLayout({ children }: { children: React.ReactNode }) {
@@ -17,15 +17,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
     }
   }, [status, router])
 
-  if (status === 'loading') {
-    return (
-      <div className="flex min-h-screen items-center justify-center" aria-label="Loading">
-        <Spinner size="lg" />
-        <span className="sr-only">Loading your workspace…</span>
-      </div>
-    )
-  }
-
+  if (status === 'loading') return <AppShellSkeleton />
   if (status === 'unauthenticated') return null
 
   return (
