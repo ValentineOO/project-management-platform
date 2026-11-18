@@ -2,7 +2,9 @@
 
 import { useId } from 'react'
 import { AuthCard } from '@/components/auth/AuthCard'
-import { Button, Input, Label } from '@/components/ui'
+import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
+import { Label } from '@/components/ui/label'
 import { useAuth } from '@/hooks/useAuth'
 
 export default function RegisterPage() {
@@ -34,8 +36,8 @@ export default function RegisterPage() {
     >
       <form onSubmit={handleSubmit} noValidate className="space-y-4">
         <div className="space-y-1.5">
-          <Label htmlFor={nameId} required>
-            Full name
+          <Label htmlFor={nameId}>
+            Full name <span className="text-destructive" aria-hidden="true">*</span>
           </Label>
           <Input
             id={nameId}
@@ -44,13 +46,19 @@ export default function RegisterPage() {
             autoComplete="name"
             placeholder="Alex Johnson"
             required
-            error={errors.name}
+            aria-invalid={!!errors.name}
+            aria-describedby={errors.name ? `${nameId}-err` : undefined}
           />
+          {errors.name && (
+            <p id={`${nameId}-err`} role="alert" className="text-xs text-destructive">
+              {errors.name}
+            </p>
+          )}
         </div>
 
         <div className="space-y-1.5">
-          <Label htmlFor={emailId} required>
-            Email address
+          <Label htmlFor={emailId}>
+            Email address <span className="text-destructive" aria-hidden="true">*</span>
           </Label>
           <Input
             id={emailId}
@@ -59,13 +67,19 @@ export default function RegisterPage() {
             autoComplete="email"
             placeholder="you@example.com"
             required
-            error={errors.email}
+            aria-invalid={!!errors.email}
+            aria-describedby={errors.email ? `${emailId}-err` : undefined}
           />
+          {errors.email && (
+            <p id={`${emailId}-err`} role="alert" className="text-xs text-destructive">
+              {errors.email}
+            </p>
+          )}
         </div>
 
         <div className="space-y-1.5">
-          <Label htmlFor={passwordId} required>
-            Password
+          <Label htmlFor={passwordId}>
+            Password <span className="text-destructive" aria-hidden="true">*</span>
           </Label>
           <Input
             id={passwordId}
@@ -74,13 +88,19 @@ export default function RegisterPage() {
             autoComplete="new-password"
             placeholder="Minimum 8 characters"
             required
-            error={errors.password}
+            aria-invalid={!!errors.password}
+            aria-describedby={errors.password ? `${passwordId}-err` : undefined}
           />
+          {errors.password && (
+            <p id={`${passwordId}-err`} role="alert" className="text-xs text-destructive">
+              {errors.password}
+            </p>
+          )}
         </div>
 
         <div className="space-y-1.5">
-          <Label htmlFor={confirmId} required>
-            Confirm password
+          <Label htmlFor={confirmId}>
+            Confirm password <span className="text-destructive" aria-hidden="true">*</span>
           </Label>
           <Input
             id={confirmId}
@@ -89,12 +109,11 @@ export default function RegisterPage() {
             autoComplete="new-password"
             placeholder="••••••••"
             required
-            error={errors.password_confirmation}
           />
         </div>
 
-        <Button type="submit" className="w-full" loading={loading} disabled={loading}>
-          Create account
+        <Button type="submit" className="w-full" disabled={loading} aria-busy={loading}>
+          {loading ? 'Creating account…' : 'Create account'}
         </Button>
       </form>
     </AuthCard>

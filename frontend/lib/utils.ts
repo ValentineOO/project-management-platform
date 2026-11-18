@@ -1,8 +1,6 @@
-import type { TaskPriority, TaskStatus } from '@/types'
+export { cn } from 'cn'
 
-export function cn(...classes: (string | false | null | undefined)[]): string {
-  return classes.filter(Boolean).join(' ')
-}
+import type { TaskPriority, TaskStatus } from '@/types'
 
 export function formatDate(iso: string | null): string {
   if (!iso) return ''
