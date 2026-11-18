@@ -8,6 +8,7 @@ use App\Http\Requests\Project\UpdateProjectRequest;
 use App\Models\Project;
 use App\Models\Team;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Support\Facades\DB;
 
 class ProjectController extends Controller
 {
@@ -40,8 +41,16 @@ class ProjectController extends Controller
     {
         $this->authorize('view', $project);
 
+        $taskStats = DB::table('tasks')
+            ->where('project_id', $project->id)
+            ->whereNull('deleted_at')
+            ->selectRaw('status, count(*) as total')
+            ->groupBy('status')
+            ->pluck('total', 'status');
+
         return response()->json([
-            'project' => $project->load('owner', 'team'),
+            'project' => $project->load('owner', 'team', 'members:id,name'),
+            'task_stats' => $taskStats,
         ]);
     }
 

@@ -6,9 +6,14 @@ export async function fetchTeamProjects(teamId: number): Promise<Project[]> {
   return data.data
 }
 
-export async function fetchProject(projectId: number): Promise<Project> {
-  const { data } = await api.get<{ project: Project }>(`/api/projects/${projectId}`)
-  return data.project
+export interface ProjectDetail {
+  project: Project & { members?: { id: number; name: string }[] }
+  task_stats: Record<string, number>
+}
+
+export async function fetchProject(projectId: number): Promise<ProjectDetail> {
+  const { data } = await api.get<ProjectDetail>(`/api/projects/${projectId}`)
+  return data
 }
 
 export async function createProject(

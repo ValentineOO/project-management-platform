@@ -10,6 +10,7 @@ import { TaskRow } from '@/components/tasks/TaskRow'
 import { CreateTaskModal } from '@/components/tasks/CreateTaskModal'
 import { EditTaskModal } from '@/components/tasks/EditTaskModal'
 import { TasksSkeleton } from '@/components/tasks/TasksSkeleton'
+import { ProjectProgress } from '@/components/projects/ProjectProgress'
 import { useTasks } from '@/hooks/useTasks'
 import { useProject } from '@/hooks/useProject'
 import type { Task } from '@/types'
@@ -19,7 +20,7 @@ interface ProjectDetailClientProps {
 }
 
 export function ProjectDetailClient({ projectId }: ProjectDetailClientProps) {
-  const { project, members, loading: loadingProject } = useProject(projectId)
+  const { project, members, taskStats, loading: loadingProject } = useProject(projectId)
   const { tasks, loading, loadingMore, error, hasMore, loadMore, createTask, updateTask } =
     useTasks(projectId)
 
@@ -67,6 +68,8 @@ export function ProjectDetailClient({ projectId }: ProjectDetailClientProps) {
           </div>
         </div>
       </div>
+
+      <ProjectProgress stats={taskStats} members={members} />
 
       {error && <p role="alert" className="text-sm text-destructive">{error}</p>}
 
