@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button'
 import {
   DropdownMenu,
   DropdownMenuContent,
+  DropdownMenuGroup,
   DropdownMenuItem,
   DropdownMenuLabel,
   DropdownMenuSeparator,
@@ -15,7 +16,13 @@ import { SearchPalette } from '@/components/search/SearchPalette'
 import { useAuth } from '@/hooks/useAuth'
 
 function getInitials(name: string): string {
-  return name.split(' ').map((n) => n[0]).slice(0, 2).join('').toUpperCase()
+  return name
+    .split(' ')
+    .filter(Boolean)
+    .map((n) => n[0])
+    .slice(0, 2)
+    .join('')
+    .toUpperCase()
 }
 
 export function Header() {
@@ -56,31 +63,45 @@ export function Header() {
             aria-label={`User menu for ${user.name}`}
             className="inline-flex items-center gap-2 rounded-md px-2 py-1.5 text-sm font-medium transition-colors hover:bg-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
           >
-            <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-muted text-xs font-semibold select-none" aria-hidden="true">
+            <span
+              className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-muted text-xs font-semibold select-none"
+              aria-hidden="true"
+            >
               {getInitials(user.name)}
             </span>
             <span className="hidden sm:block">{user.name}</span>
           </DropdownMenuTrigger>
 
           <DropdownMenuContent align="end" className="w-48">
-            <DropdownMenuLabel className="font-normal">
-              <p className="text-sm font-medium">{user.name}</p>
-              <p className="text-xs text-muted-foreground">{user.email}</p>
-            </DropdownMenuLabel>
+            {/* GroupLabel must be inside a Group */}
+            <DropdownMenuGroup>
+              <DropdownMenuLabel className="font-normal">
+                <p className="text-sm font-medium">{user.name}</p>
+                <p className="text-xs text-muted-foreground">{user.email}</p>
+              </DropdownMenuLabel>
+            </DropdownMenuGroup>
+
             <DropdownMenuSeparator />
-            <DropdownMenuItem className="gap-2">
-              <UserIcon size={14} aria-hidden="true" />
-              Profile
-            </DropdownMenuItem>
+
+            <DropdownMenuGroup>
+              <DropdownMenuItem className="gap-2">
+                <UserIcon size={14} aria-hidden="true" />
+                Profile
+              </DropdownMenuItem>
+            </DropdownMenuGroup>
+
             <DropdownMenuSeparator />
-            <DropdownMenuItem
-              variant="destructive"
-              className="gap-2"
-              onClick={logout}
-            >
-              <LogOut size={14} aria-hidden="true" />
-              Sign out
-            </DropdownMenuItem>
+
+            <DropdownMenuGroup>
+              <DropdownMenuItem
+                variant="destructive"
+                className="gap-2"
+                onClick={logout}
+              >
+                <LogOut size={14} aria-hidden="true" />
+                Sign out
+              </DropdownMenuItem>
+            </DropdownMenuGroup>
           </DropdownMenuContent>
         </DropdownMenu>
       )}
