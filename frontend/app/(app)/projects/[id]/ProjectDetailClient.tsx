@@ -7,7 +7,8 @@ import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { Skeleton } from '@/components/ui/skeleton'
 import { TaskRow } from '@/components/tasks/TaskRow'
-import { TaskModal } from '@/components/tasks/TaskModal'
+import { CreateTaskModal } from '@/components/tasks/CreateTaskModal'
+import { EditTaskModal } from '@/components/tasks/EditTaskModal'
 import { TasksSkeleton } from '@/components/tasks/TasksSkeleton'
 import { useTasks } from '@/hooks/useTasks'
 import { useProject } from '@/hooks/useProject'
@@ -96,23 +97,22 @@ export function ProjectDetailClient({ projectId }: ProjectDetailClientProps) {
         </section>
       )}
 
-      <TaskModal
+      <CreateTaskModal
         open={showCreate}
         onClose={() => setShowCreate(false)}
         members={members}
-        onSave={async (payload) => createTask(payload)}
+        onCreate={createTask}
       />
 
-      <TaskModal
-        open={!!editing}
-        onClose={() => setEditing(null)}
-        task={editing ?? undefined}
-        members={members}
-        onSave={async (payload) => {
-          if (!editing) return { ok: false }
-          return updateTask(editing.id, payload as Parameters<typeof updateTask>[1])
-        }}
-      />
+      {editing && (
+        <EditTaskModal
+          open
+          onClose={() => setEditing(null)}
+          task={editing}
+          members={members}
+          onUpdate={updateTask}
+        />
+      )}
     </div>
   )
 }

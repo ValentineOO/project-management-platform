@@ -21,11 +21,11 @@ export async function createTask(
   projectId: number,
   payload: {
     title: string
-    description?: string
+    description?: string | null
     status?: string
     priority?: string
-    assignee_id?: number
-    due_date?: string
+    assignee_id?: number | null
+    due_date?: string | null
   },
 ): Promise<Task> {
   const { data } = await api.post<{ task: Task }>(`/api/projects/${projectId}/tasks`, payload)
@@ -37,7 +37,7 @@ export async function updateTask(
   payload: {
     version: number
     title?: string
-    description?: string
+    description?: string | null
     status?: string
     priority?: string
     assignee_id?: number | null
