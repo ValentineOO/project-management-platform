@@ -14,9 +14,9 @@ services:
       DB_CONNECTION: pgsql
       DB_HOST: postgres
       DB_PORT: 5432
-      DB_DATABASE: ${DB_DATABASE:-codefyve}
-      DB_USERNAME: ${DB_USERNAME:-codefyve}
-      DB_PASSWORD: ${DB_PASSWORD:-secret}
+      DB_DATABASE: ${DB_DATABASE}
+      DB_USERNAME: ${DB_USERNAME}
+      DB_PASSWORD: ${DB_PASSWORD}
       REDIS_HOST: redis
       REDIS_PORT: 6379
       CACHE_STORE: redis
@@ -74,15 +74,15 @@ services:
     container_name: codefyve_postgres
     restart: unless-stopped
     environment:
-      POSTGRES_DB: ${DB_DATABASE:-codefyve}
-      POSTGRES_USER: ${DB_USERNAME:-codefyve}
-      POSTGRES_PASSWORD: ${DB_PASSWORD:-secret}
+      POSTGRES_DB: ${DB_DATABASE}
+      POSTGRES_USER: ${DB_USERNAME}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
     ports:
       - "5433:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
     healthcheck:
-      test: ["CMD", "pg_isready", "-U", "${DB_USERNAME:-codefyve}"]
+      test: ["CMD", "pg_isready", "-U", "${DB_USERNAME}"]
       interval: 5s
       timeout: 5s
       retries: 5
@@ -118,9 +118,9 @@ services:
       DB_CONNECTION: pgsql
       DB_HOST: postgres
       DB_PORT: 5432
-      DB_DATABASE: ${DB_DATABASE:-codefyve}
-      DB_USERNAME: ${DB_USERNAME:-codefyve}
-      DB_PASSWORD: ${DB_PASSWORD:-secret}
+      DB_DATABASE: ${DB_DATABASE}
+      DB_USERNAME: ${DB_USERNAME}
+      DB_PASSWORD: ${DB_PASSWORD}
       REDIS_HOST: redis
       QUEUE_CONNECTION: redis
     volumes:
