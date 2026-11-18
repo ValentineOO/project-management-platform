@@ -5,9 +5,9 @@ RUN apk add --no-cache \
     libzip-dev \
     unzip \
     git \
-    && docker-php-ext-install pdo pdo_pgsql pcntl bcmath zip opcache
+    && docker-php-ext-install pdo_pgsql pcntl bcmath zip
 
-COPY --from=composer:2.8 /usr/bin/composer /usr/bin/composer
+COPY --from=composer:2.11 /usr/bin/composer /usr/bin/composer
 
 WORKDIR /var/www/html
 

@@ -78,7 +78,7 @@ services:
       POSTGRES_USER: ${DB_USERNAME:-codefyve}
       POSTGRES_PASSWORD: ${DB_PASSWORD:-secret}
     ports:
-      - "5432:5432"
+      - "5433:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
     healthcheck:
@@ -94,7 +94,7 @@ services:
     container_name: codefyve_redis
     restart: unless-stopped
     ports:
-      - "6379:6379"
+      - "6380:6379"
     volumes:
       - redis_data:/data
     healthcheck:
