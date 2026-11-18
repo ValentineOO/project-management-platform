@@ -73,18 +73,12 @@ export interface DashboardStats {
 
 export interface CursorPaginatedResponse<T> {
   data: T[]
-  meta: {
-    next_cursor: string | null
-    prev_cursor: string | null
-    per_page: number
-    path: string
-  }
-  links: {
-    first: string | null
-    last: string | null
-    next: string | null
-    prev: string | null
-  }
+  next_cursor: string | null
+  prev_cursor: string | null
+  per_page: number
+  path: string
+  next_page_url: string | null
+  prev_page_url: string | null
 }
 
 export interface ApiError {
