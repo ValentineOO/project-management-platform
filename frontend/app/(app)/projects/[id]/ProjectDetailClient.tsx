@@ -18,7 +18,7 @@ interface ProjectDetailClientProps {
 }
 
 export function ProjectDetailClient({ projectId }: ProjectDetailClientProps) {
-  const { project, loading: loadingProject } = useProject(projectId)
+  const { project, members, loading: loadingProject } = useProject(projectId)
   const { tasks, loading, loadingMore, error, hasMore, loadMore, createTask, updateTask } =
     useTasks(projectId)
 
@@ -99,15 +99,15 @@ export function ProjectDetailClient({ projectId }: ProjectDetailClientProps) {
       <TaskModal
         open={showCreate}
         onClose={() => setShowCreate(false)}
-        onSave={async (payload) => {
-          return createTask(payload)
-        }}
+        members={members}
+        onSave={async (payload) => createTask(payload)}
       />
 
       <TaskModal
         open={!!editing}
         onClose={() => setEditing(null)}
         task={editing ?? undefined}
+        members={members}
         onSave={async (payload) => {
           if (!editing) return { ok: false }
           return updateTask(editing.id, payload as Parameters<typeof updateTask>[1])

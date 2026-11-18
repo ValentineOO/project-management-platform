@@ -8,13 +8,14 @@ import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { STATUS_LABELS, PRIORITY_LABELS } from '@/lib/utils'
-import type { Task, TaskStatus, TaskPriority } from '@/types'
+import type { Task, TaskStatus, TaskPriority, User } from '@/types'
 import type { TaskConflict } from '@/hooks/useTasks'
 
 interface TaskModalProps {
   open: boolean
   onClose: () => void
   task?: Task
+  members?: Pick<User, 'id' | 'name'>[]
   onSave: (
     payload: {
       version?: number
@@ -22,12 +23,13 @@ interface TaskModalProps {
       description?: string
       status: string
       priority: string
+      assignee_id?: number | null
       due_date?: string
     },
   ) => Promise<{ ok: boolean; errors?: Record<string, string>; conflict?: TaskConflict }>
 }
 
-export function TaskModal({ open, onClose, task, onSave }: TaskModalProps) {
+export function TaskModal({ open, onClose, task, members = [], onSave }: TaskModalProps) {
   const isEdit = !!task
   const titleId = useId()
   const descId = useId()
@@ -41,12 +43,14 @@ export function TaskModal({ open, onClose, task, onSave }: TaskModalProps) {
     e.preventDefault()
     const fd = new FormData(e.currentTarget)
 
+    const rawAssignee = fd.get('assignee_id') as string
     const payload = {
       ...(isEdit && { version: task!.version }),
       title: fd.get('title') as string,
       description: (fd.get('description') as string) || undefined,
       status: fd.get('status') as string,
       priority: fd.get('priority') as string,
+      assignee_id: rawAssignee === '' ? null : rawAssignee ? Number(rawAssignee) : undefined,
       due_date: (fd.get('due_date') as string) || undefined,
     }
 
@@ -151,6 +155,23 @@ export function TaskModal({ open, onClose, task, onSave }: TaskModalProps) {
               </Select>
             </div>
           </div>
+
+          {members.length > 0 && (
+            <div className="space-y-1.5">
+              <Label>Assignee</Label>
+              <Select name="assignee_id" defaultValue={task?.assignee_id ? String(task.assignee_id) : ''}>
+                <SelectTrigger aria-label="Assignee">
+                  <SelectValue placeholder="Unassigned" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="">Unassigned</SelectItem>
+                  {members.map((m) => (
+                    <SelectItem key={m.id} value={String(m.id)}>{m.name}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+          )}
 
           <div className="space-y-1.5">
             <Label htmlFor={dueDateId}>Due date</Label>
