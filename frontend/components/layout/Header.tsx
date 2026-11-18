@@ -30,18 +30,14 @@ export function Header() {
       <div />
       {user && (
         <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button
-              variant="ghost"
-              size="sm"
-              className="gap-2 px-2"
-              aria-label={`User menu for ${user.name}`}
-            >
-              <Avatar className="h-7 w-7">
-                <AvatarFallback className="text-xs">{getInitials(user.name)}</AvatarFallback>
-              </Avatar>
-              <span className="hidden text-sm font-medium sm:block">{user.name}</span>
-            </Button>
+          <DropdownMenuTrigger
+            aria-label={`User menu for ${user.name}`}
+            className="inline-flex items-center gap-2 rounded-md px-2 py-1.5 text-sm font-medium transition-colors hover:bg-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+          >
+            <Avatar className="h-7 w-7">
+              <AvatarFallback className="text-xs">{getInitials(user.name)}</AvatarFallback>
+            </Avatar>
+            <span className="hidden sm:block">{user.name}</span>
           </DropdownMenuTrigger>
 
           <DropdownMenuContent align="end" className="w-48">
@@ -50,21 +46,18 @@ export function Header() {
               <p className="text-xs text-muted-foreground">{user.email}</p>
             </DropdownMenuLabel>
             <DropdownMenuSeparator />
-            <DropdownMenuItem asChild>
-              <button className="w-full cursor-pointer gap-2 flex items-center">
-                <UserIcon size={14} aria-hidden="true" />
-                Profile
-              </button>
+            <DropdownMenuItem className="gap-2">
+              <UserIcon size={14} aria-hidden="true" />
+              Profile
             </DropdownMenuItem>
             <DropdownMenuSeparator />
-            <DropdownMenuItem asChild>
-              <button
-                onClick={logout}
-                className="w-full cursor-pointer gap-2 flex items-center text-destructive focus:text-destructive"
-              >
-                <LogOut size={14} aria-hidden="true" />
-                Sign out
-              </button>
+            <DropdownMenuItem
+              variant="destructive"
+              className="gap-2"
+              onClick={logout}
+            >
+              <LogOut size={14} aria-hidden="true" />
+              Sign out
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
