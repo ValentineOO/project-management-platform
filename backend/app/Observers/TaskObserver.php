@@ -4,6 +4,7 @@ namespace App\Observers;
 
 use App\Models\ActivityLog;
 use App\Models\Task;
+use App\Services\DashboardService;
 use Illuminate\Support\Facades\Auth;
 
 class TaskObserver
@@ -17,6 +18,8 @@ class TaskObserver
             'action' => 'task.created',
             'payload' => ['title' => $task->title, 'status' => $task->status],
         ]);
+
+        $this->invalidateDashboard($task);
     }
 
     public function updated(Task $task): void
@@ -37,6 +40,8 @@ class TaskObserver
             'action' => 'task.updated',
             'payload' => $tracked,
         ]);
+
+        $this->invalidateDashboard($task);
     }
 
     public function deleted(Task $task): void
@@ -48,5 +53,18 @@ class TaskObserver
             'action' => 'task.deleted',
             'payload' => ['title' => $task->title],
         ]);
+
+        $this->invalidateDashboard($task);
+    }
+
+    private function invalidateDashboard(Task $task): void
+    {
+        if ($task->assignee_id) {
+            app(DashboardService::class)->invalidate($task->assignee_id);
+        }
+
+        if (Auth::id()) {
+            app(DashboardService::class)->invalidate(Auth::id());
+        }
     }
 }
