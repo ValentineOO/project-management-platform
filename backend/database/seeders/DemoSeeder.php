@@ -76,6 +76,8 @@ class DemoSeeder extends Seeder
             number_format($logCount) . " activity logs, " .
             count($users) . " users across " . self::TEAMS . " teams."
         );
+        $this->command->info('');
+        $this->command->info('  Demo login:  demo@codefyve.test  /  password');
     }
 
     private function createUsers(): array
@@ -83,7 +85,19 @@ class DemoSeeder extends Seeder
         $password = Hash::make('password');
         $rows = [];
 
-        for ($i = 1; $i <= self::USERS; $i++) {
+        // Fixed demo account — always id=1, always discoverable
+        $rows[] = [
+            'id' => 1,
+            'name' => 'Demo User',
+            'email' => 'demo@codefyve.test',
+            'email_verified_at' => now(),
+            'password' => $password,
+            'remember_token' => Str::random(10),
+            'created_at' => now()->subMonths(6),
+            'updated_at' => now(),
+        ];
+
+        for ($i = 2; $i <= self::USERS; $i++) {
             $name = fake()->name();
             $rows[] = [
                 'id' => $i,

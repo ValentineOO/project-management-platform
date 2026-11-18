@@ -52,9 +52,14 @@ export function useAuth() {
   )
 
   const logout = useCallback(async () => {
-    await authService.logout()
-    setUser(null)
-    router.push('/login')
+    try {
+      await authService.logout()
+    } catch {
+      // session may already be expired server-side — clear locally regardless
+    } finally {
+      setUser(null)
+      router.push('/login')
+    }
   }, [setUser, router])
 
   return { user, status, loading, errors, login, register, logout }

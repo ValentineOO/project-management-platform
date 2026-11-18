@@ -5,16 +5,21 @@ import { fetchTeams, createTeam as createTeamService } from '@/services/teams'
 import { extractApiErrors } from '@/lib/utils'
 import type { Team } from '@/types'
 
+// Module-level cache: survives route changes within the same session
+let teamsCache: Team[] | null = null
+
 export function useTeams() {
-  const [teams, setTeams] = useState<Team[]>([])
-  const [loading, setLoading] = useState(true)
+  const [teams, setTeams] = useState<Team[]>(teamsCache ?? [])
+  const [loading, setLoading] = useState(teamsCache === null)
   const [error, setError] = useState<string | null>(null)
 
   const load = useCallback(async () => {
-    setLoading(true)
+    if (teamsCache === null) setLoading(true)
     setError(null)
     try {
-      setTeams(await fetchTeams())
+      const data = await fetchTeams()
+      teamsCache = data
+      setTeams(data)
     } catch {
       setError('Failed to load teams.')
     } finally {
@@ -27,6 +32,7 @@ export function useTeams() {
   const createTeam = useCallback(async (name: string, description?: string) => {
     try {
       const team = await createTeamService({ name, description })
+      teamsCache = [team, ...(teamsCache ?? [])]
       setTeams((prev) => [team, ...prev])
       return { ok: true as const }
     } catch (err) {
