@@ -2,12 +2,13 @@
 
 namespace App\Http\Controllers\Api;
 
+use App\Exceptions\TaskConflictException;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Task\StoreTaskRequest;
 use App\Http\Requests\Task\UpdateTaskRequest;
+use App\Models\ActivityLog;
 use App\Models\Project;
 use App\Models\Task;
-use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -22,7 +23,8 @@ class TaskController extends Controller
             ->when($request->status, fn($q, $v) => $q->where('status', $v))
             ->when($request->assignee_id, fn($q, $v) => $q->where('assignee_id', $v))
             ->when($request->priority, fn($q, $v) => $q->where('priority', $v))
-            ->orderBy('created_at')
+            ->orderByDesc('created_at')
+            ->orderByDesc('id')
             ->cursorPaginate(20);
 
         return response()->json($tasks);
@@ -53,21 +55,46 @@ class TaskController extends Controller
     {
         $this->authorize('update', $task);
 
+        $payload = $request->safe()->except('version');
+        $user = $request->user();
+
         try {
-            $task = DB::transaction(function () use ($request, $task) {
-                $locked = Task::where('id', $task->id)
+            $task = DB::transaction(function () use ($task, $payload, $user, $request) {
+                $affected = DB::table('tasks')
+                    ->where('id', $task->id)
                     ->where('version', $request->version)
-                    ->lockForUpdate()
-                    ->firstOrFail();
+                    ->whereNull('deleted_at')
+                    ->update(array_merge($payload, [
+                        'version' => DB::raw('version + 1'),
+                        'updated_at' => now(),
+                    ]));
 
-                $locked->update(array_merge(
-                    $request->safe()->except('version'),
-                    ['version' => $locked->version + 1]
-                ));
+                if ($affected === 0) {
+                    throw new TaskConflictException();
+                }
 
-                return $locked->fresh();
+                $task = $task->fresh();
+
+                // Query builder bypasses the Eloquent observer; log explicitly inside the transaction
+                $tracked = array_intersect_key(
+                    $payload,
+                    array_flip(['status', 'priority', 'assignee_id', 'title', 'due_date'])
+                );
+
+                if (!empty($tracked)) {
+                    ActivityLog::create([
+                        'causer_id' => $user->id,
+                        'project_id' => $task->project_id,
+                        'subject_type' => Task::class,
+                        'subject_id' => $task->id,
+                        'action' => 'task.updated',
+                        'payload' => $tracked,
+                    ]);
+                }
+
+                return $task;
             });
-        } catch (ModelNotFoundException) {
+        } catch (TaskConflictException) {
             return response()->json([
                 'message' => 'Conflict: task was modified by another user. Reload and retry.',
             ], 409);
