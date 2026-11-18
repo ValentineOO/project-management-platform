@@ -56,9 +56,18 @@ export interface ActivityLog {
 }
 
 export interface DashboardStats {
-  total_tasks: number
-  completed_tasks: number
-  overdue_tasks: number
+  teams: number
+  projects: {
+    total: number
+    by_status: Record<string, number>
+  }
+  tasks: {
+    assigned_to_me: {
+      total: number
+      by_status: Record<string, number>
+    }
+    overdue: number
+  }
   recent_activity: ActivityLog[]
 }
 

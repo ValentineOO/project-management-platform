@@ -56,7 +56,8 @@ class DashboardService
             ->whereIn('project_id', $projectIds)
             ->latest('created_at')
             ->limit(10)
-            ->select(['causer_id', 'project_id', 'subject_id', 'action', 'payload', 'created_at']);
+            ->select(['id', 'causer_id', 'project_id', 'subject_id', 'action', 'payload', 'created_at'])
+            ->get();
 
         return [
             'teams' => $teamIds->count(),

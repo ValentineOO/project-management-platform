@@ -1,5 +1,7 @@
 'use client'
 
+export const instant = false
+
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { StatCard } from '@/components/dashboard/StatCard'
 import { ActivityFeed } from '@/components/dashboard/ActivityFeed'
@@ -16,7 +18,9 @@ export default function DashboardPage() {
         <h1 className="text-xl font-semibold">
           Good {greeting()}, {user?.name?.split(' ')[0]}
         </h1>
-        <p className="text-sm text-muted-foreground">Here's what's happening across your projects.</p>
+        <p className="text-sm text-muted-foreground">
+          Here&apos;s what&apos;s happening across your projects.
+        </p>
       </div>
 
       {error && (
@@ -24,14 +28,15 @@ export default function DashboardPage() {
       )}
 
       <section aria-label="Overview statistics">
-        <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
-          <StatCard label="Total tasks" value={stats?.total_tasks} loading={loading} />
-          <StatCard label="Completed" value={stats?.completed_tasks} loading={loading} />
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-4">
+          <StatCard label="Projects" value={stats?.projects.total} loading={loading} />
+          <StatCard label="Assigned tasks" value={stats?.tasks.assigned_to_me.total} loading={loading} />
+          <StatCard label="Completed" value={stats?.tasks.assigned_to_me.by_status['done']} loading={loading} />
           <StatCard
             label="Overdue"
-            value={stats?.overdue_tasks}
+            value={stats?.tasks.overdue}
             loading={loading}
-            className={stats?.overdue_tasks ? 'border-destructive/40' : ''}
+            highlight={!!stats?.tasks.overdue}
           />
         </div>
       </section>

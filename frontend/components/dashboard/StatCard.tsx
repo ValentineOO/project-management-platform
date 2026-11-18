@@ -6,12 +6,13 @@ interface StatCardProps {
   label: string
   value: number | undefined
   loading?: boolean
+  highlight?: boolean
   className?: string
 }
 
-export function StatCard({ label, value, loading, className }: StatCardProps) {
+export function StatCard({ label, value, loading, highlight, className }: StatCardProps) {
   return (
-    <Card className={cn('', className)}>
+    <Card className={cn(highlight && 'border-destructive/40', className)}>
       <CardContent className="pt-5">
         <p className="text-sm font-medium text-muted-foreground">{label}</p>
         <div className="mt-1.5 h-8 flex items-center">
