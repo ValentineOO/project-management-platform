@@ -62,7 +62,7 @@ services:
     container_name: codefyve_nginx
     restart: unless-stopped
     ports:
-      - "80:80"
+      - "8082:80"
     depends_on:
       - backend
       - frontend

@@ -13,16 +13,17 @@ const nextConfig: NextConfig = {
     },
   },
   async rewrites() {
+    const backendUrl = process.env.API_URL ?? 'http://localhost:8000'
     return [
       {
-        source: "/api/:path*",
-        destination: `${process.env.API_URL}/api/:path*`,
+        source: '/api/:path*',
+        destination: `${backendUrl}/api/:path*`,
       },
       {
-        source: "/sanctum/:path*",
-        destination: `${process.env.API_URL}/sanctum/:path*`,
+        source: '/sanctum/:path*',
+        destination: `${backendUrl}/sanctum/:path*`,
       },
-    ];
+    ]
   },
 };
 
