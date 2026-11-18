@@ -3,12 +3,15 @@
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { StatCard } from '@/components/dashboard/StatCard'
 import { ActivityFeed } from '@/components/dashboard/ActivityFeed'
+import { DashboardSkeleton } from '@/components/dashboard/DashboardSkeleton'
 import { useDashboard } from '@/hooks/useDashboard'
 import { useAuthContext } from '@/contexts/AuthContext'
 
 export function DashboardClient() {
   const { user } = useAuthContext()
   const { stats, loading, error } = useDashboard()
+
+  if (loading) return <DashboardSkeleton />
 
   return (
     <div className="space-y-6">
@@ -27,13 +30,12 @@ export function DashboardClient() {
 
       <section aria-label="Overview statistics">
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-4">
-          <StatCard label="Projects" value={stats?.projects.total} loading={loading} />
-          <StatCard label="Assigned tasks" value={stats?.tasks.assigned_to_me.total} loading={loading} />
-          <StatCard label="Completed" value={stats?.tasks.assigned_to_me.by_status['done']} loading={loading} />
+          <StatCard label="Projects" value={stats?.projects.total} />
+          <StatCard label="Assigned tasks" value={stats?.tasks.assigned_to_me.total} />
+          <StatCard label="Completed" value={stats?.tasks.assigned_to_me.by_status['done']} />
           <StatCard
             label="Overdue"
             value={stats?.tasks.overdue}
-            loading={loading}
             highlight={!!stats?.tasks.overdue}
           />
         </div>
@@ -47,11 +49,7 @@ export function DashboardClient() {
             </CardTitle>
           </CardHeader>
           <CardContent>
-            {loading ? (
-              <p className="text-sm text-muted-foreground">Loading…</p>
-            ) : (
-              <ActivityFeed items={stats?.recent_activity ?? []} />
-            )}
+            <ActivityFeed items={stats?.recent_activity ?? []} />
           </CardContent>
         </Card>
       </section>

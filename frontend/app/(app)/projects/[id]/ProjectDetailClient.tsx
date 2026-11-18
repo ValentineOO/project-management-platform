@@ -5,9 +5,10 @@ import { ArrowLeft, Plus } from 'lucide-react'
 import Link from 'next/link'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
-import { Spinner } from '@/components/ui/spinner'
+import { Skeleton } from '@/components/ui/skeleton'
 import { TaskRow } from '@/components/tasks/TaskRow'
 import { TaskModal } from '@/components/tasks/TaskModal'
+import { TasksSkeleton } from '@/components/tasks/TasksSkeleton'
 import { useTasks } from '@/hooks/useTasks'
 import { useProject } from '@/hooks/useProject'
 import type { Task } from '@/types'
@@ -26,8 +27,10 @@ export function ProjectDetailClient({ projectId }: ProjectDetailClientProps) {
 
   if (loadingProject) {
     return (
-      <div className="flex justify-center py-16">
-        <Spinner />
+      <div className="space-y-6" aria-busy="true" aria-label="Loading project">
+        <Skeleton className="h-6 w-48" />
+        <Skeleton className="h-4 w-72" />
+        <TasksSkeleton />
       </div>
     )
   }
@@ -67,9 +70,7 @@ export function ProjectDetailClient({ projectId }: ProjectDetailClientProps) {
       {error && <p role="alert" className="text-sm text-destructive">{error}</p>}
 
       {loading ? (
-        <div className="flex justify-center py-16" aria-label="Loading tasks">
-          <Spinner />
-        </div>
+        <TasksSkeleton />
       ) : tasks.length === 0 ? (
         <div className="rounded-lg border border-dashed p-12 text-center">
           <p className="text-sm text-muted-foreground">No tasks yet.</p>
@@ -88,7 +89,7 @@ export function ProjectDetailClient({ projectId }: ProjectDetailClientProps) {
           {hasMore && (
             <div className="flex justify-center mt-4">
               <Button variant="outline" size="sm" onClick={loadMore} disabled={loadingMore}>
-                {loadingMore ? <Spinner className="size-4" /> : 'Load more'}
+                {loadingMore ? 'Loading…' : 'Load more'}
               </Button>
             </div>
           )}

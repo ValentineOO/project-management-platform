@@ -5,7 +5,7 @@ import { Plus } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { ProjectCard } from '@/components/projects/ProjectCard'
 import { CreateProjectModal } from '@/components/projects/CreateProjectModal'
-import { Spinner } from '@/components/ui/spinner'
+import { ProjectsSkeleton } from '@/components/projects/ProjectsSkeleton'
 import { useProjects } from '@/hooks/useProjects'
 
 export function ProjectsClient() {
@@ -33,9 +33,7 @@ export function ProjectsClient() {
       {error && <p role="alert" className="text-sm text-destructive">{error}</p>}
 
       {loading ? (
-        <div className="flex justify-center py-16" aria-label="Loading projects">
-          <Spinner />
-        </div>
+        <ProjectsSkeleton />
       ) : projects.length === 0 ? (
         <div className="rounded-lg border border-dashed p-12 text-center">
           <p className="text-sm text-muted-foreground">No projects yet.</p>
