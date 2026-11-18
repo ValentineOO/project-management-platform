@@ -13,6 +13,7 @@ class TaskObserver
     {
         ActivityLog::create([
             'causer_id' => Auth::id(),
+            'project_id' => $task->project_id,
             'subject_type' => Task::class,
             'subject_id' => $task->id,
             'action' => 'task.created',
@@ -35,6 +36,7 @@ class TaskObserver
 
         ActivityLog::create([
             'causer_id' => Auth::id(),
+            'project_id' => $task->project_id,
             'subject_type' => Task::class,
             'subject_id' => $task->id,
             'action' => 'task.updated',
@@ -48,6 +50,7 @@ class TaskObserver
     {
         ActivityLog::create([
             'causer_id' => Auth::id(),
+            'project_id' => $task->project_id,
             'subject_type' => Task::class,
             'subject_id' => $task->id,
             'action' => 'task.deleted',

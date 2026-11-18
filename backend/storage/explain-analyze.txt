@@ -1,0 +1,121 @@
+================================================================================
+EXPLAIN ANALYZE — Project Management Platform
+Generated: 2026-11-18 07:10:24
+Dataset: ~50,000 tasks across 100 projects
+================================================================================
+
+── Cursor pagination on tasks (project_id + created_at)
+   SQL: SELECT id, title, status, created_at FROM tasks WHERE project_id = ? AND deleted_at IS NULL ORDER BY created_at ASC LIMIT 20
+
+Limit  (cost=87.05..87.05 rows=1 width=1048) (actual time=0.737..0.742 rows=20.00 loops=1)
+  Buffers: shared hit=17
+  ->  Sort  (cost=87.05..87.05 rows=1 width=1048) (actual time=0.735..0.737 rows=20.00 loops=1)
+        Sort Key: created_at
+        Sort Method: top-N heapsort  Memory: 28kB
+        Buffers: shared hit=17
+        ->  Bitmap Heap Scan on tasks  (cost=4.46..87.04 rows=1 width=1048) (actual time=0.085..0.446 rows=500.00 loops=1)
+              Recheck Cond: (project_id = '1'::bigint)
+              Filter: (deleted_at IS NULL)
+              Heap Blocks: exact=12
+              Buffers: shared hit=14
+              ->  Bitmap Index Scan on tasks_project_id_assignee_id_index  (cost=0.00..4.46 rows=23 width=0) (actual time=0.053..0.053 rows=500.00 loops=1)
+                    Index Cond: (project_id = '1'::bigint)
+                    Index Searches: 1
+                    Buffers: shared hit=2
+Planning:
+  Buffers: shared hit=162
+Planning Time: 0.877 ms
+Execution Time: 0.838 ms
+--------------------------------------------------------------------------------
+
+── Status filter on tasks (composite project_id + status)
+   SQL: SELECT id, title, status FROM tasks WHERE project_id = ? AND status = ? AND deleted_at IS NULL ORDER BY created_at ASC LIMIT 20
+
+Limit  (cost=8.31..8.32 rows=1 width=1048) (actual time=0.200..0.204 rows=20.00 loops=1)
+  Buffers: shared hit=14
+  ->  Sort  (cost=8.31..8.32 rows=1 width=1048) (actual time=0.200..0.201 rows=20.00 loops=1)
+        Sort Key: created_at
+        Sort Method: top-N heapsort  Memory: 29kB
+        Buffers: shared hit=14
+        ->  Index Scan using tasks_project_id_status_index on tasks  (cost=0.28..8.30 rows=1 width=1048) (actual time=0.038..0.129 rows=141.00 loops=1)
+              Index Cond: ((project_id = '1'::bigint) AND ((status)::text = 'in_progress'::text))
+              Filter: (deleted_at IS NULL)
+              Index Searches: 1
+              Buffers: shared hit=14
+Planning Time: 0.155 ms
+Execution Time: 0.229 ms
+--------------------------------------------------------------------------------
+
+── Full-text search with pg_trgm ILIKE on tasks.title
+   SQL: SELECT id, title, project_id FROM tasks WHERE title ILIKE ? AND deleted_at IS NULL LIMIT 10
+
+Limit  (cost=529.43..533.44 rows=1 width=532) (actual time=4.394..4.432 rows=10.00 loops=1)
+  Buffers: shared hit=138
+  ->  Bitmap Heap Scan on tasks  (cost=529.43..533.44 rows=1 width=532) (actual time=4.393..4.420 rows=10.00 loops=1)
+        Recheck Cond: ((title)::text ~~* '%authentication%'::text)
+        Filter: (deleted_at IS NULL)
+        Heap Blocks: exact=4
+        Buffers: shared hit=138
+        ->  Bitmap Index Scan on idx_tasks_title_trgm  (cost=0.00..529.43 rows=1 width=0) (actual time=4.171..4.171 rows=2109.00 loops=1)
+              Index Cond: ((title)::text ~~* '%authentication%'::text)
+              Index Searches: 1
+              Buffers: shared hit=133
+Planning:
+  Buffers: shared hit=10
+Planning Time: 1.599 ms
+Execution Time: 4.564 ms
+--------------------------------------------------------------------------------
+
+── Full-text search with pg_trgm ILIKE on projects.name
+   SQL: SELECT id, name, status FROM projects WHERE name ILIKE ? AND deleted_at IS NULL LIMIT 10
+
+Limit  (cost=0.00..10.88 rows=1 width=1040) (actual time=0.088..0.195 rows=10.00 loops=1)
+  Buffers: shared hit=4
+  ->  Seq Scan on projects  (cost=0.00..10.88 rows=1 width=1040) (actual time=0.088..0.193 rows=10.00 loops=1)
+        Filter: ((deleted_at IS NULL) AND ((name)::text ~~* '%Platform%'::text))
+        Rows Removed by Filter: 56
+        Buffers: shared hit=4
+Planning:
+  Buffers: shared hit=1
+Planning Time: 0.094 ms
+Execution Time: 0.209 ms
+--------------------------------------------------------------------------------
+
+── Dashboard: task aggregation by status for assignee
+   SQL: SELECT status, count(*) as total FROM tasks WHERE assignee_id = ? AND deleted_at IS NULL GROUP BY status
+
+GroupAggregate  (cost=87.05..87.07 rows=1 width=524) (actual time=0.023..0.024 rows=0.00 loops=1)
+  Group Key: status
+  Buffers: shared hit=5
+  ->  Sort  (cost=87.05..87.05 rows=1 width=516) (actual time=0.022..0.023 rows=0.00 loops=1)
+        Sort Key: status
+        Sort Method: quicksort  Memory: 25kB
+        Buffers: shared hit=5
+        ->  Bitmap Heap Scan on tasks  (cost=4.46..87.04 rows=1 width=516) (actual time=0.008..0.009 rows=0.00 loops=1)
+              Recheck Cond: (assignee_id = '1'::bigint)
+              Filter: (deleted_at IS NULL)
+              Buffers: shared hit=2
+              ->  Bitmap Index Scan on tasks_assignee_id_index  (cost=0.00..4.46 rows=23 width=0) (actual time=0.004..0.004 rows=0.00 loops=1)
+                    Index Cond: (assignee_id = '1'::bigint)
+                    Index Searches: 1
+                    Buffers: shared hit=2
+Planning:
+  Buffers: shared hit=14
+Planning Time: 0.148 ms
+Execution Time: 0.055 ms
+--------------------------------------------------------------------------------
+
+── Activity log: recent events for a project (project_id + created_at)
+   SQL: SELECT action, created_at FROM activity_logs WHERE project_id = ? ORDER BY created_at DESC LIMIT 10
+
+Limit  (cost=0.29..42.09 rows=10 width=524) (actual time=0.021..0.037 rows=10.00 loops=1)
+  Buffers: shared hit=9
+  ->  Index Scan Backward using activity_logs_project_id_created_at_index on activity_logs  (cost=0.29..205.14 rows=49 width=524) (actual time=0.020..0.035 rows=10.00 loops=1)
+        Index Cond: (project_id = '1'::bigint)
+        Index Searches: 1
+        Buffers: shared hit=9
+Planning:
+  Buffers: shared hit=93
+Planning Time: 0.302 ms
+Execution Time: 0.048 ms
+--------------------------------------------------------------------------------

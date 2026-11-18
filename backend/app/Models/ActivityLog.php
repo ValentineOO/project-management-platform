@@ -11,6 +11,7 @@ class ActivityLog extends Model
 
     protected $fillable = [
         'causer_id',
+        'project_id',
         'subject_type',
         'subject_id',
         'action',

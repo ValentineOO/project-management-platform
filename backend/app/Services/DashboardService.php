@@ -53,13 +53,10 @@ class DashboardService
             ->count();
 
         $recentActivity = ActivityLog::with('causer:id,name')
-            ->where('subject_type', Task::class)
-            ->whereIn('subject_id', function ($q) use ($projectIds) {
-                $q->select('id')->from('tasks')->whereIn('project_id', $projectIds)->whereNull('deleted_at');
-            })
+            ->whereIn('project_id', $projectIds)
             ->latest('created_at')
             ->limit(10)
-            ->get(['causer_id', 'subject_id', 'action', 'payload', 'created_at']);
+            ->select(['causer_id', 'project_id', 'subject_id', 'action', 'payload', 'created_at']);
 
         return [
             'teams' => $teamIds->count(),
