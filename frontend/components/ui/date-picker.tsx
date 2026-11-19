@@ -72,29 +72,28 @@ export function DatePicker({
         aria-expanded={open}
         aria-haspopup="dialog"
         className={cn(
-          'flex h-8 w-full items-center justify-between gap-2 rounded-lg border border-input bg-transparent px-2.5 text-sm transition-colors',
+          'flex h-8 w-full items-center gap-2 rounded-lg border border-input bg-transparent px-2.5 text-sm transition-colors',
           'hover:bg-muted/50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring',
           'disabled:cursor-not-allowed disabled:opacity-50',
+          validSelected && !disabled ? 'pr-8' : 'pr-2.5',
           !validSelected && 'text-muted-foreground',
         )}
       >
-        <span className="flex items-center gap-2 flex-1 min-w-0">
-          <CalendarIcon size={14} aria-hidden="true" className="shrink-0" />
-          <span className="truncate">
-            {validSelected ? format(validSelected, 'MMM d, yyyy') : placeholder}
-          </span>
+        <CalendarIcon size={14} aria-hidden="true" className="shrink-0" />
+        <span className="truncate flex-1 text-left">
+          {validSelected ? format(validSelected, 'MMM d, yyyy') : placeholder}
         </span>
-        {validSelected && !disabled && (
-          <button
-            type="button"
-            aria-label="Clear date"
-            onClick={handleClear}
-            className="rounded p-0.5 hover:bg-muted text-muted-foreground hover:text-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
-          >
-            <X size={12} />
-          </button>
-        )}
       </button>
+      {validSelected && !disabled && (
+        <button
+          type="button"
+          aria-label="Clear date"
+          onClick={handleClear}
+          className="absolute inset-y-0 right-0 flex items-center px-2 text-muted-foreground hover:text-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
+        >
+          <X size={12} />
+        </button>
+      )}
 
       {open && (
         <div
