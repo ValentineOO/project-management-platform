@@ -1,6 +1,6 @@
 'use client'
 
-import { ArrowLeft, Plus, Pencil, Trash2 } from 'lucide-react'
+import { ArrowLeft, Plus } from 'lucide-react'
 import Link from 'next/link'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
@@ -10,23 +10,21 @@ import type { Project } from '@/types'
 interface ProjectHeaderProps {
   project: Project | null
   onAddTask: () => void
-  onEdit: () => void
-  onDelete: () => void
 }
 
-export function ProjectHeader({ project, onAddTask, onEdit, onDelete }: ProjectHeaderProps) {
+export function ProjectHeader({ project, onAddTask }: ProjectHeaderProps) {
   return (
-    <div className="space-y-3">
+    <div className="space-y-1">
       <Link
         href="/projects"
-        className="inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground"
+        className="inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground mb-2"
       >
         <ArrowLeft size={14} aria-hidden="true" />
         Projects
       </Link>
 
       <div className="flex items-start justify-between gap-4">
-        <div className="space-y-1 min-w-0">
+        <div className="space-y-0.5 min-w-0">
           <div className="flex items-center gap-2 flex-wrap">
             <h1 className="text-xl font-semibold">{project?.name}</h1>
             {project && (
@@ -44,24 +42,6 @@ export function ProjectHeader({ project, onAddTask, onEdit, onDelete }: ProjectH
           Add task
         </Button>
       </div>
-
-      {project && (
-        <div className="flex items-center gap-2">
-          <Button variant="outline" size="sm" onClick={onEdit}>
-            <Pencil size={13} aria-hidden="true" />
-            Edit
-          </Button>
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={onDelete}
-            className="text-destructive hover:bg-destructive hover:text-white border-destructive/30"
-          >
-            <Trash2 size={13} aria-hidden="true" />
-            Delete
-          </Button>
-        </div>
-      )}
     </div>
   )
 }

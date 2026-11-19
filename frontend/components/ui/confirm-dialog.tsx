@@ -32,12 +32,14 @@ export function ConfirmDialog({
           <DialogDescription>{description}</DialogDescription>
         </DialogHeader>
         <div className="flex justify-end gap-2 pt-2">
-          <Button variant="outline" onClick={onCancel} disabled={loading}>
+          <Button variant="outline" className="cursor-pointer" onClick={onCancel} disabled={loading}>
             Cancel
           </Button>
           <Button
             variant={destructive ? 'destructive' : 'default'}
-            className={destructive ? 'bg-destructive text-white hover:bg-destructive/90 border-0' : undefined}
+            className={destructive
+              ? 'bg-destructive text-white font-semibold text-sm hover:bg-destructive/90 border-0 cursor-pointer'
+              : 'cursor-pointer'}
             onClick={onConfirm}
             disabled={loading}
             aria-busy={loading}

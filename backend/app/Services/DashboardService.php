@@ -60,10 +60,16 @@ class DashboardService
             ->count();
 
         $recentActivity = ActivityLog::with('causer:id,name')
-            ->whereIn('project_id', $projectIds)
+            ->where(function ($q) use ($projectIds, $teamIds) {
+                $q->whereIn('project_id', $projectIds)
+                  ->orWhere(function ($q2) use ($teamIds) {
+                      $q2->whereNull('project_id')
+                         ->whereIn('subject_id', $teamIds);
+                  });
+            })
             ->latest('created_at')
-            ->limit(10)
-            ->select(['id', 'causer_id', 'project_id', 'subject_id', 'action', 'payload', 'created_at'])
+            ->limit(15)
+            ->select(['id', 'causer_id', 'project_id', 'subject_type', 'subject_id', 'action', 'payload', 'created_at'])
             ->get();
 
         return [

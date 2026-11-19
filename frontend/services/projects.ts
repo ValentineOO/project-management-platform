@@ -7,7 +7,8 @@ export async function fetchTeamProjects(teamId: number): Promise<Project[]> {
 }
 
 export interface ProjectDetail {
-  project: Project & { members?: { id: number; name: string }[] }
+  project: Project
+  members: { id: number; name: string }[]
   task_stats: Record<string, number>
 }
 

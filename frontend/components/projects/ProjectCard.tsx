@@ -17,20 +17,18 @@ export function ProjectCard({ project, onEdit, onDelete }: ProjectCardProps) {
 
   return (
     <div className="relative group">
-      {/* Full-card navigation link sits beneath everything */}
       <Link
         href={`/projects/${project.id}`}
         className="absolute inset-0 rounded-lg z-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
         aria-label={`Open project ${project.name}`}
       />
-
       <Card className="h-full transition-shadow group-hover:shadow-md">
-        <CardContent className={cn('pt-5 space-y-2', hasActions ? 'pb-3' : 'pb-5')}>
-          {/* Name + badge on the same line */}
-          <div className="flex items-center gap-2 flex-wrap">
+        <CardContent className="pt-5 pb-4 space-y-1.5">
+          {/* Name + badge: badge stays tight to name, no flex-1 stretch */}
+          <div className="flex items-center gap-1.5">
             <FolderKanban size={15} className="shrink-0 text-muted-foreground" aria-hidden="true" />
             <span className="font-medium truncate">{project.name}</span>
-            <Badge className={cn('text-xs font-medium border-0 ml-auto shrink-0', PROJECT_STATUS_COLORS[project.status])}>
+            <Badge className={cn('shrink-0 text-xs font-medium border-0', PROJECT_STATUS_COLORS[project.status])}>
               {PROJECT_STATUS_LABELS[project.status] ?? project.status}
             </Badge>
           </div>
@@ -41,8 +39,9 @@ export function ProjectCard({ project, onEdit, onDelete }: ProjectCardProps) {
 
           <p className="text-xs text-muted-foreground pl-5">{project.team.name}</p>
 
+          {/* Actions: below content, right-aligned, no hard border */}
           {hasActions && (
-            <div className="flex items-center justify-end gap-1 pt-2 border-t border-border/50 relative z-10">
+            <div className="flex items-center justify-end gap-0.5 pt-2 relative z-10">
               {onEdit && (
                 <Button
                   size="icon"

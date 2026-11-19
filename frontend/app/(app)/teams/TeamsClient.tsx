@@ -1,17 +1,14 @@
 'use client'
 
-import { useId, useState } from 'react'
+import { useState } from 'react'
 import { Plus, Users, Pencil, Trash2 } from 'lucide-react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { toast } from 'sonner'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog'
-import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
-import { Textarea } from '@/components/ui/textarea'
 import { TeamsSkeleton } from '@/components/teams/TeamsSkeleton'
+import { CreateTeamModal } from '@/components/teams/CreateTeamModal'
 import { ConfirmDialog } from '@/components/ui/confirm-dialog'
 import { useTeams } from '@/hooks/useTeams'
 import { deleteTeam } from '@/services/teams'
@@ -64,7 +61,10 @@ export function TeamsClient() {
           </Button>
         </div>
       ) : (
-        <ul className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3" aria-label={`${teams.length} team${teams.length === 1 ? '' : 's'}`}>
+        <ul
+          className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3"
+          aria-label={`${teams.length} team${teams.length === 1 ? '' : 's'}`}
+        >
           {teams.map((team) => (
             <li key={team.id}>
               <div className="relative group">
@@ -74,15 +74,17 @@ export function TeamsClient() {
                   aria-label={`Open team ${team.name}`}
                 />
                 <Card className="h-full transition-shadow group-hover:shadow-md">
-                  <CardContent className="pt-5 pb-3 space-y-2">
-                    <div className="flex items-center gap-2">
-                      <Users size={16} className="shrink-0 text-muted-foreground" aria-hidden="true" />
+                  <CardContent className="pt-5 pb-4 space-y-1.5">
+                    {/* Name: tight, no flex-1 stretch */}
+                    <div className="flex items-center gap-1.5">
+                      <Users size={15} className="shrink-0 text-muted-foreground" aria-hidden="true" />
                       <span className="font-medium truncate">{team.name}</span>
                     </div>
                     {team.description && (
                       <p className="text-sm text-muted-foreground line-clamp-2 pl-5">{team.description}</p>
                     )}
-                    <div className="flex items-center justify-end gap-1 pt-2 border-t border-border/50 relative z-10">
+                    {/* Actions below content, right-aligned */}
+                    <div className="flex items-center justify-end gap-0.5 pt-2 relative z-10">
                       <Button
                         size="icon"
                         variant="ghost"
@@ -127,83 +129,5 @@ export function TeamsClient() {
         onCancel={() => setDeletingTeam(null)}
       />
     </div>
-  )
-}
-
-function CreateTeamModal({
-  open,
-  onClose,
-  onCreate,
-}: {
-  open: boolean
-  onClose: () => void
-  onCreate: (name: string, description?: string) => Promise<{ ok: boolean; errors?: Record<string, string> }>
-}) {
-  const nameId = useId()
-  const descId = useId()
-  const [loading, setLoading] = useState(false)
-  const [errors, setErrors] = useState<Record<string, string>>({})
-
-  async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
-    e.preventDefault()
-    const fd = new FormData(e.currentTarget)
-    setLoading(true)
-    setErrors({})
-    const result = await onCreate(
-      fd.get('name') as string,
-      (fd.get('description') as string) || undefined,
-    )
-    setLoading(false)
-    if (result.ok) {
-      onClose()
-    } else {
-      setErrors(result.errors ?? {})
-    }
-  }
-
-  return (
-    <Dialog open={open} onOpenChange={(o) => !o && onClose()}>
-      <DialogContent className="sm:max-w-md">
-        <DialogHeader>
-          <DialogTitle>New team</DialogTitle>
-          <DialogDescription>Create a team to collaborate on projects.</DialogDescription>
-        </DialogHeader>
-
-        <form onSubmit={handleSubmit} noValidate className="space-y-4 mt-2">
-          <div className="space-y-1.5">
-            <Label htmlFor={nameId}>
-              Name <span className="text-destructive" aria-hidden="true">*</span>
-            </Label>
-            <Input
-              id={nameId}
-              name="name"
-              placeholder="Team name"
-              required
-              aria-invalid={!!errors.name}
-              aria-describedby={errors.name ? `${nameId}-err` : undefined}
-            />
-            {errors.name && (
-              <p id={`${nameId}-err`} role="alert" className="text-xs text-destructive">{errors.name}</p>
-            )}
-          </div>
-
-          <div className="space-y-1.5">
-            <Label htmlFor={descId}>Description</Label>
-            <Textarea id={descId} name="description" placeholder="Optional description" rows={3} />
-          </div>
-
-          {errors._root && <p role="alert" className="text-sm text-destructive">{errors._root}</p>}
-
-          <div className="flex justify-end gap-2 pt-1">
-            <Button type="button" variant="outline" onClick={onClose} disabled={loading}>
-              Cancel
-            </Button>
-            <Button type="submit" disabled={loading} aria-busy={loading}>
-              {loading ? 'Creating…' : 'Create team'}
-            </Button>
-          </div>
-        </form>
-      </DialogContent>
-    </Dialog>
   )
 }

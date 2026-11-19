@@ -2,28 +2,72 @@ import Link from 'next/link'
 import { timeAgo } from '@/lib/utils'
 import type { ActivityLog } from '@/types'
 
+// ── label maps ──────────────────────────────────────────────────────────────
+
 const STATUS_LABEL: Record<string, string> = {
-  todo: 'To Do',
-  in_progress: 'In Progress',
-  in_review: 'In Review',
-  done: 'Done',
+  todo: 'To Do', in_progress: 'In Progress', in_review: 'In Review', done: 'Done',
 }
-
 const PRIORITY_LABEL: Record<string, string> = {
-  low: 'Low',
-  medium: 'Medium',
-  high: 'High',
-  urgent: 'Urgent',
+  low: 'Low', medium: 'Medium', high: 'High', urgent: 'Urgent',
+}
+const PROJECT_STATUS_LABEL: Record<string, string> = {
+  active: 'Active', completed: 'Completed', archived: 'Archived',
 }
 
-const ACTION_VERB: Record<string, string> = {
-  'task.created': 'created',
-  'task.updated': 'updated',
-  'task.deleted': 'deleted',
+// ── sentence builders ────────────────────────────────────────────────────────
+
+function describe(log: ActivityLog): { verb: string; subject: string; detail?: string } {
+  const p = log.payload as Record<string, string>
+
+  switch (log.action) {
+    // task
+    case 'task.created':
+      return { verb: 'created task', subject: p.title ?? 'a task' }
+    case 'task.deleted':
+      return { verb: 'deleted task', subject: p.title ?? 'a task' }
+    case 'task.updated': {
+      const parts: string[] = []
+      if (p.title)       parts.push(`renamed → "${p.title}"`)
+      if (p.status)      parts.push(STATUS_LABEL[p.status] ?? p.status)
+      if (p.priority)    parts.push(`${PRIORITY_LABEL[p.priority] ?? p.priority} priority`)
+      if (p.due_date)    parts.push(`due ${fmtDate(p.due_date)}`)
+      if (p.assignee_id) parts.push('reassigned')
+      return { verb: 'updated task', subject: '', detail: parts.slice(0, 3).join(' · ') || undefined }
+    }
+
+    // project
+    case 'project.created':
+      return { verb: 'created project', subject: p.name ?? '' }
+    case 'project.deleted':
+      return { verb: 'deleted project', subject: p.name ?? '' }
+    case 'project.updated': {
+      const parts: string[] = []
+      if (p.name && p.name !== p.name) parts.push(`renamed → "${p.name}"`)
+      if (p.status) parts.push(`marked ${PROJECT_STATUS_LABEL[p.status] ?? p.status}`)
+      return { verb: 'updated project', subject: p.name ?? '', detail: parts.join(' · ') || undefined }
+    }
+
+    // team
+    case 'team.created':
+      return { verb: 'created team', subject: p.name ?? '' }
+    case 'team.deleted':
+      return { verb: 'deleted team', subject: p.name ?? '' }
+    case 'team.updated':
+      return { verb: 'updated team', subject: p.name ?? '' }
+    case 'team.member_added':
+      return { verb: 'added', subject: p.member_name ?? 'a member', detail: p.member_email }
+    case 'team.member_removed':
+      return { verb: 'removed', subject: p.member_name ?? 'a member', detail: 'from team' }
+
+    default:
+      return { verb: log.action.replace('.', ' '), subject: '' }
+  }
 }
 
-function getInitials(name: string): string {
-  return name.split(' ').filter(Boolean).map((n) => n[0]).slice(0, 2).join('').toUpperCase()
+function linkFor(log: ActivityLog): string {
+  if (log.project_id) return `/projects/${log.project_id}`
+  if (log.subject_type?.endsWith('Team')) return `/teams/${log.subject_id}`
+  return '#'
 }
 
 function fmtDate(iso: string): string {
@@ -31,20 +75,11 @@ function fmtDate(iso: string): string {
   return isNaN(d.getTime()) ? iso : d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })
 }
 
-function getChanges(log: ActivityLog): string[] {
-  const p = log.payload as Record<string, string>
-  if (log.action === 'task.created') return p.title ? [p.title] : []
-  if (log.action === 'task.deleted') return p.title ? [p.title] : []
-  if (log.action !== 'task.updated') return []
-
-  const parts: string[] = []
-  if (p.title)       parts.push(`renamed → "${p.title}"`)
-  if (p.status)      parts.push(`${STATUS_LABEL[p.status] ?? p.status}`)
-  if (p.priority)    parts.push(`${PRIORITY_LABEL[p.priority] ?? p.priority} priority`)
-  if (p.due_date)    parts.push(`due ${fmtDate(p.due_date)}`)
-  if (p.assignee_id) parts.push('reassigned')
-  return parts
+function getInitials(name: string): string {
+  return name.split(' ').filter(Boolean).map((n) => n[0]).slice(0, 2).join('').toUpperCase()
 }
+
+// ── component ────────────────────────────────────────────────────────────────
 
 interface ActivityFeedProps {
   items: ActivityLog[]
@@ -58,29 +93,28 @@ export function ActivityFeed({ items }: ActivityFeedProps) {
   return (
     <ul className="space-y-1">
       {items.map((log) => {
-        const name   = log.causer?.name ?? 'Someone'
-        const verb   = ACTION_VERB[log.action] ?? log.action
-        const changes = getChanges(log)
-        const shown  = changes.slice(0, 2)
-        const extra  = changes.length - shown.length
+        const name = log.causer?.name ?? 'Someone'
+        const { verb, subject, detail } = describe(log)
+        const href = linkFor(log)
 
         return (
           <li key={log.id}>
             <Link
-              href={`/projects/${log.project_id}`}
+              href={href}
               className="group flex items-start gap-3 rounded-lg px-3 py-2.5 hover:bg-muted/60 transition-colors"
             >
-              {/* avatar */}
               <span className="mt-px flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-muted text-xs font-semibold select-none group-hover:bg-background transition-colors">
                 {getInitials(name)}
               </span>
 
-              {/* body */}
               <div className="min-w-0 flex-1">
                 <div className="flex items-baseline justify-between gap-2">
                   <p className="text-sm truncate">
                     <span className="font-semibold">{name}</span>
-                    <span className="text-muted-foreground font-normal"> {verb} a task</span>
+                    <span className="text-muted-foreground"> {verb}</span>
+                    {subject && (
+                      <span className="font-medium"> {subject}</span>
+                    )}
                   </p>
                   <time
                     dateTime={log.created_at}
@@ -89,13 +123,8 @@ export function ActivityFeed({ items }: ActivityFeedProps) {
                     {timeAgo(log.created_at)}
                   </time>
                 </div>
-                {shown.length > 0 && (
-                  <p className="mt-0.5 text-xs text-muted-foreground truncate">
-                    {shown.join(' · ')}
-                    {extra > 0 && (
-                      <span className="ml-1 text-muted-foreground/60">+{extra} more</span>
-                    )}
-                  </p>
+                {detail && (
+                  <p className="mt-0.5 text-xs text-muted-foreground truncate">{detail}</p>
                 )}
               </div>
             </Link>

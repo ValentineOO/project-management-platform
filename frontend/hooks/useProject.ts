@@ -23,10 +23,10 @@ export function useProject(projectId: number) {
   useEffect(() => {
     if (!cache.has(projectId)) setLoading(true)
     fetchProject(projectId)
-      .then(({ project, task_stats }) => {
+      .then(({ project, members, task_stats }) => {
         const entry: ProjectCache = {
           project,
-          members: project.members ?? [],
+          members: members ?? [],
           taskStats: task_stats,
         }
         cache.set(projectId, entry)

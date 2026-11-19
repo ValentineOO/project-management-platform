@@ -48,7 +48,7 @@ export interface ActivityLog {
   id: number
   causer_id: number
   causer?: Pick<User, 'id' | 'name'>
-  project_id: number
+  project_id: number | null
   subject_type: string
   subject_id: number
   action: string

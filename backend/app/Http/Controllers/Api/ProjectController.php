@@ -49,8 +49,11 @@ class ProjectController extends Controller
             ->groupBy('status')
             ->pluck('total', 'status');
 
+        $project->load(['owner', 'team']);
+
         return response()->json([
-            'project' => $project->load(['owner', 'team', 'members' => fn ($q) => $q->select('users.id', 'users.name')]),
+            'project'    => $project,
+            'members'    => $project->team->members()->select('users.id', 'users.name')->get(),
             'task_stats' => $taskStats,
         ]);
     }
