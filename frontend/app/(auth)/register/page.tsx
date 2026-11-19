@@ -1,7 +1,9 @@
 'use client'
 
-import { useId } from 'react'
+import { useId, useState } from 'react'
 import { AuthCard } from '@/components/auth/AuthCard'
+import { PasswordInput } from '@/components/auth/PasswordInput'
+import { PasswordStrength } from '@/components/auth/PasswordStrength'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
@@ -14,8 +16,31 @@ export default function RegisterPage() {
   const passwordId = useId()
   const confirmId = useId()
 
+  const [password, setPassword] = useState('')
+  const [touched, setTouched] = useState<Record<string, boolean>>({})
+  const [focused, setFocused] = useState<Record<string, boolean>>({})
+
+  function touch(field: string) {
+    setTouched(t => ({ ...t, [field]: true }))
+    setFocused(f => ({ ...f, [field]: false }))
+  }
+
+  function focus(field: string) {
+    setFocused(f => ({ ...f, [field]: true }))
+  }
+
+  function showError(field: string) {
+    return !!(errors[field] && touched[field])
+  }
+
+  function invalid(field: string) {
+    return showError(field) && !focused[field]
+  }
+
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault()
+    setTouched({ name: true, email: true, password: true, password_confirmation: true })
+    setFocused({})
     const fd = new FormData(e.currentTarget)
     await register(
       fd.get('name') as string,
@@ -46,10 +71,12 @@ export default function RegisterPage() {
             autoComplete="name"
             placeholder="Alex Johnson"
             required
-            aria-invalid={!!errors.name}
-            aria-describedby={errors.name ? `${nameId}-err` : undefined}
+            aria-invalid={invalid('name')}
+            aria-describedby={showError('name') ? `${nameId}-err` : undefined}
+            onBlur={() => touch('name')}
+            onFocus={() => focus('name')}
           />
-          {errors.name && (
+          {showError('name') && (
             <p id={`${nameId}-err`} role="alert" className="text-xs text-destructive">
               {errors.name}
             </p>
@@ -67,10 +94,12 @@ export default function RegisterPage() {
             autoComplete="email"
             placeholder="you@example.com"
             required
-            aria-invalid={!!errors.email}
-            aria-describedby={errors.email ? `${emailId}-err` : undefined}
+            aria-invalid={invalid('email')}
+            aria-describedby={showError('email') ? `${emailId}-err` : undefined}
+            onBlur={() => touch('email')}
+            onFocus={() => focus('email')}
           />
-          {errors.email && (
+          {showError('email') && (
             <p id={`${emailId}-err`} role="alert" className="text-xs text-destructive">
               {errors.email}
             </p>
@@ -81,17 +110,21 @@ export default function RegisterPage() {
           <Label htmlFor={passwordId}>
             Password <span className="text-destructive" aria-hidden="true">*</span>
           </Label>
-          <Input
+          <PasswordInput
             id={passwordId}
             name="password"
-            type="password"
             autoComplete="new-password"
             placeholder="Minimum 8 characters"
             required
-            aria-invalid={!!errors.password}
-            aria-describedby={errors.password ? `${passwordId}-err` : undefined}
+            value={password}
+            onChange={e => setPassword((e.target as HTMLInputElement).value)}
+            aria-invalid={invalid('password')}
+            aria-describedby={showError('password') ? `${passwordId}-err` : undefined}
+            onBlur={() => touch('password')}
+            onFocus={() => focus('password')}
           />
-          {errors.password && (
+          <PasswordStrength password={password} />
+          {showError('password') && (
             <p id={`${passwordId}-err`} role="alert" className="text-xs text-destructive">
               {errors.password}
             </p>
@@ -102,14 +135,22 @@ export default function RegisterPage() {
           <Label htmlFor={confirmId}>
             Confirm password <span className="text-destructive" aria-hidden="true">*</span>
           </Label>
-          <Input
+          <PasswordInput
             id={confirmId}
             name="password_confirmation"
-            type="password"
             autoComplete="new-password"
-            placeholder="••••••••"
+            placeholder="Repeat your password"
             required
+            aria-invalid={invalid('password_confirmation')}
+            aria-describedby={showError('password_confirmation') ? `${confirmId}-err` : undefined}
+            onBlur={() => touch('password_confirmation')}
+            onFocus={() => focus('password_confirmation')}
           />
+          {showError('password_confirmation') && (
+            <p id={`${confirmId}-err`} role="alert" className="text-xs text-destructive">
+              {errors.password_confirmation}
+            </p>
+          )}
         </div>
 
         <Button type="submit" className="w-full" disabled={loading} aria-busy={loading}>

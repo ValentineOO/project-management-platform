@@ -1,8 +1,8 @@
 'use client'
 
-import type { Metadata } from 'next'
-import { useId } from 'react'
+import { useId, useState } from 'react'
 import { AuthCard } from '@/components/auth/AuthCard'
+import { PasswordInput } from '@/components/auth/PasswordInput'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
@@ -13,8 +13,30 @@ export default function LoginPage() {
   const emailId = useId()
   const passwordId = useId()
 
+  const [touched, setTouched] = useState<Record<string, boolean>>({})
+  const [focused, setFocused] = useState<Record<string, boolean>>({})
+
+  function touch(field: string) {
+    setTouched(t => ({ ...t, [field]: true }))
+    setFocused(f => ({ ...f, [field]: false }))
+  }
+
+  function focus(field: string) {
+    setFocused(f => ({ ...f, [field]: true }))
+  }
+
+  function showError(field: string) {
+    return !!(errors[field] && touched[field])
+  }
+
+  function invalid(field: string) {
+    return showError(field) && !focused[field]
+  }
+
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault()
+    setTouched({ email: true, password: true })
+    setFocused({})
     const fd = new FormData(e.currentTarget)
     await login(fd.get('email') as string, fd.get('password') as string)
   }
@@ -40,10 +62,12 @@ export default function LoginPage() {
             autoComplete="email"
             placeholder="you@example.com"
             required
-            aria-invalid={!!errors.email}
-            aria-describedby={errors.email ? `${emailId}-err` : undefined}
+            aria-invalid={invalid('email')}
+            aria-describedby={showError('email') ? `${emailId}-err` : undefined}
+            onBlur={() => touch('email')}
+            onFocus={() => focus('email')}
           />
-          {errors.email && (
+          {showError('email') && (
             <p id={`${emailId}-err`} role="alert" className="text-xs text-destructive">
               {errors.email}
             </p>
@@ -54,17 +78,18 @@ export default function LoginPage() {
           <Label htmlFor={passwordId}>
             Password <span className="text-destructive" aria-hidden="true">*</span>
           </Label>
-          <Input
+          <PasswordInput
             id={passwordId}
             name="password"
-            type="password"
             autoComplete="current-password"
             placeholder="••••••••"
             required
-            aria-invalid={!!errors.password}
-            aria-describedby={errors.password ? `${passwordId}-err` : undefined}
+            aria-invalid={invalid('password')}
+            aria-describedby={showError('password') ? `${passwordId}-err` : undefined}
+            onBlur={() => touch('password')}
+            onFocus={() => focus('password')}
           />
-          {errors.password && (
+          {showError('password') && (
             <p id={`${passwordId}-err`} role="alert" className="text-xs text-destructive">
               {errors.password}
             </p>
