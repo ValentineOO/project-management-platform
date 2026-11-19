@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Models\Team;
+use App\Models\User;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
@@ -47,6 +48,67 @@ class TeamController extends Controller
         return response()->json([
             'team' => $team->load('owner', 'members'),
         ]);
+    }
+
+    public function update(Request $request, Team $team): JsonResponse
+    {
+        $this->authorize('update', $team);
+
+        $validated = $request->validate([
+            'name'        => ['required', 'string', 'max:255'],
+            'description' => ['nullable', 'string'],
+        ]);
+
+        $team->update($validated);
+
+        return response()->json(['team' => $team]);
+    }
+
+    public function destroy(Team $team): JsonResponse
+    {
+        $this->authorize('delete', $team);
+
+        $team->delete();
+
+        return response()->json(null, 204);
+    }
+
+    public function addMember(Request $request, Team $team): JsonResponse
+    {
+        $this->authorize('update', $team);
+
+        $validated = $request->validate([
+            'email' => ['required', 'email'],
+        ]);
+
+        $user = User::where('email', $validated['email'])->first();
+
+        if (! $user) {
+            return response()->json(['errors' => ['email' => 'No user found with that email address.']], 422);
+        }
+
+        if ($team->members()->where('user_id', $user->id)->exists()) {
+            return response()->json(['errors' => ['email' => 'This user is already a member.']], 422);
+        }
+
+        $team->members()->attach($user->id, ['role' => 'member', 'joined_at' => now()]);
+
+        $user->load('teams');
+
+        return response()->json(['member' => $user->only(['id', 'name', 'email']) + ['pivot' => ['role' => 'member']]], 201);
+    }
+
+    public function removeMember(Request $request, Team $team, User $user): JsonResponse
+    {
+        $this->authorize('update', $team);
+
+        if ($team->owner_id === $user->id) {
+            return response()->json(['message' => 'The team owner cannot be removed.'], 422);
+        }
+
+        $team->members()->detach($user->id);
+
+        return response()->json(null, 204);
     }
 
     private function uniqueSlug(string $name): string

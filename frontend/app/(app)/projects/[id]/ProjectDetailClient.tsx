@@ -14,6 +14,9 @@ import { useTasks } from '@/hooks/useTasks'
 import { useProject } from '@/hooks/useProject'
 import { useTaskFilters } from '@/hooks/useTaskFilters'
 import { toast } from 'sonner'
+import { useRouter } from 'next/navigation'
+import { deleteProject } from '@/services/projects'
+import { ConfirmDialog } from '@/components/ui/confirm-dialog'
 import type { Task, Project } from '@/types'
 
 interface ProjectDetailClientProps {
@@ -28,13 +31,29 @@ export function ProjectDetailClient({ projectId }: ProjectDetailClientProps) {
   const { tasks, loading, loadingMore, error, hasMore, loadMore, createTask, updateTask } =
     useTasks(projectId, filters)
 
+  const router = useRouter()
   const [showCreate, setShowCreate] = useState(false)
   const [showEditProject, setShowEditProject] = useState(false)
+  const [showDeleteProject, setShowDeleteProject] = useState(false)
+  const [deletingProject, setDeletingProject] = useState(false)
   const [editing, setEditing] = useState<Task | null>(null)
 
   function handleProjectUpdated(updated: Project) {
     setProject(updated)
     toast.success('Project updated')
+  }
+
+  async function handleDeleteProject() {
+    setDeletingProject(true)
+    try {
+      await deleteProject(projectId)
+      toast.success('Project deleted')
+      router.push('/projects')
+    } catch {
+      toast.error('Failed to delete project')
+      setDeletingProject(false)
+      setShowDeleteProject(false)
+    }
   }
 
   const liveStats: Record<string, number> = loading
@@ -60,6 +79,7 @@ export function ProjectDetailClient({ projectId }: ProjectDetailClientProps) {
         project={project}
         onAddTask={() => setShowCreate(true)}
         onEdit={() => setShowEditProject(true)}
+        onDelete={() => setShowDeleteProject(true)}
       />
 
       <ProjectProgress stats={liveStats} members={members} />
@@ -114,6 +134,17 @@ export function ProjectDetailClient({ projectId }: ProjectDetailClientProps) {
           onUpdated={handleProjectUpdated}
         />
       )}
+
+      <ConfirmDialog
+        open={showDeleteProject}
+        title="Delete project"
+        description={`Are you sure you want to delete "${project?.name}"? All tasks will be permanently removed. This cannot be undone.`}
+        confirmLabel="Delete project"
+        destructive
+        loading={deletingProject}
+        onConfirm={handleDeleteProject}
+        onCancel={() => setShowDeleteProject(false)}
+      />
     </div>
   )
 }

@@ -26,5 +26,5 @@ export function useTeam(teamId: number) {
       .finally(() => setLoading(false))
   }, [teamId])
 
-  return { team, loading, error }
+  return { team, loading, error, setTeam }
 }

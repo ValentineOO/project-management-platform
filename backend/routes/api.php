@@ -24,6 +24,10 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('teams', [TeamController::class, 'index']);
     Route::post('teams', [TeamController::class, 'store']);
     Route::get('teams/{team}', [TeamController::class, 'show']);
+    Route::patch('teams/{team}', [TeamController::class, 'update']);
+    Route::delete('teams/{team}', [TeamController::class, 'destroy']);
+    Route::post('teams/{team}/members', [TeamController::class, 'addMember']);
+    Route::delete('teams/{team}/members/{user}', [TeamController::class, 'removeMember']);
 
     Route::get('teams/{team}/projects', [ProjectController::class, 'index']);
     Route::post('teams/{team}/projects', [ProjectController::class, 'store']);

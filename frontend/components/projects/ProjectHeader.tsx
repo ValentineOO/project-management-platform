@@ -1,6 +1,6 @@
 'use client'
 
-import { ArrowLeft, Plus, Pencil } from 'lucide-react'
+import { ArrowLeft, Plus, Pencil, Trash2 } from 'lucide-react'
 import Link from 'next/link'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
@@ -10,9 +10,10 @@ interface ProjectHeaderProps {
   project: Project | null
   onAddTask: () => void
   onEdit: () => void
+  onDelete: () => void
 }
 
-export function ProjectHeader({ project, onAddTask, onEdit }: ProjectHeaderProps) {
+export function ProjectHeader({ project, onAddTask, onEdit, onDelete }: ProjectHeaderProps) {
   return (
     <div>
       <Link
@@ -43,6 +44,12 @@ export function ProjectHeader({ project, onAddTask, onEdit }: ProjectHeaderProps
             <Button variant="outline" size="sm" onClick={onEdit}>
               <Pencil size={14} aria-hidden="true" />
               Edit
+            </Button>
+          )}
+          {project && (
+            <Button variant="outline" size="sm" onClick={onDelete} className="text-destructive hover:bg-destructive hover:text-destructive-foreground">
+              <Trash2 size={14} aria-hidden="true" />
+              Delete
             </Button>
           )}
           <Button onClick={onAddTask}>
