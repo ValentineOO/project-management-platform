@@ -1,5 +1,6 @@
 import api from '@/lib/api'
 import type { Project } from '@/types'
+import type { ProjectWithTeam } from '@/hooks/useProjects'
 
 export async function fetchTeamProjects(teamId: number): Promise<Project[]> {
   const { data } = await api.get<{ data: Project[] }>(`/api/teams/${teamId}/projects`)
@@ -27,9 +28,9 @@ export async function createProject(
 
 export async function updateProject(
   projectId: number,
-  payload: Partial<Pick<Project, 'name' | 'description' | 'status'>>,
-): Promise<Project> {
-  const { data } = await api.patch<{ project: Project }>(`/api/projects/${projectId}`, payload)
+  payload: Partial<Pick<Project, 'name' | 'description' | 'status'>> & { team_id?: number },
+): Promise<ProjectWithTeam> {
+  const { data } = await api.patch<{ project: ProjectWithTeam }>(`/api/projects/${projectId}`, payload)
   return data.project
 }
 

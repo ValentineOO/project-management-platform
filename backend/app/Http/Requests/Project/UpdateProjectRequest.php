@@ -15,9 +15,10 @@ class UpdateProjectRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'name' => ['sometimes', 'string', 'max:255'],
+            'name'        => ['sometimes', 'string', 'max:255'],
             'description' => ['sometimes', 'nullable', 'string'],
-            'status' => ['sometimes', Rule::in(['active', 'archived', 'completed'])],
+            'status'      => ['sometimes', Rule::in(['active', 'archived', 'completed'])],
+            'team_id'     => ['sometimes', 'integer', 'exists:teams,id'],
         ];
     }
 }

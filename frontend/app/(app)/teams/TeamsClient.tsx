@@ -3,21 +3,21 @@
 import { useState } from 'react'
 import { Plus, Users, Pencil, Trash2 } from 'lucide-react'
 import Link from 'next/link'
-import { useRouter } from 'next/navigation'
 import { toast } from 'sonner'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
 import { TeamsSkeleton } from '@/components/teams/TeamsSkeleton'
 import { CreateTeamModal } from '@/components/teams/CreateTeamModal'
+import { EditTeamModal } from '@/components/teams/EditTeamModal'
 import { ConfirmDialog } from '@/components/ui/confirm-dialog'
 import { useTeams } from '@/hooks/useTeams'
 import { deleteTeam } from '@/services/teams'
 import type { Team } from '@/types'
 
 export function TeamsClient() {
-  const { teams, loading, error, createTeam } = useTeams()
-  const router = useRouter()
+  const { teams, loading, error, createTeam, updateCachedTeam, removeFromCache } = useTeams()
   const [showCreate, setShowCreate] = useState(false)
+  const [editingTeam, setEditingTeam] = useState<Team | null>(null)
   const [deletingTeam, setDeletingTeam] = useState<Team | null>(null)
   const [deleteLoading, setDeleteLoading] = useState(false)
 
@@ -26,9 +26,9 @@ export function TeamsClient() {
     setDeleteLoading(true)
     try {
       await deleteTeam(deletingTeam.id)
+      removeFromCache(deletingTeam.id)
       toast.success('Team deleted')
       setDeletingTeam(null)
-      window.location.reload()
     } catch {
       toast.error('Failed to delete team')
     } finally {
@@ -90,7 +90,7 @@ export function TeamsClient() {
                         variant="ghost"
                         className="h-7 w-7 text-muted-foreground hover:text-foreground"
                         aria-label={`Edit ${team.name}`}
-                        onClick={(e) => { e.preventDefault(); router.push(`/teams/${team.id}`) }}
+                        onClick={(e) => { e.preventDefault(); setEditingTeam(team) }}
                       >
                         <Pencil size={13} aria-hidden="true" />
                       </Button>
@@ -117,6 +117,19 @@ export function TeamsClient() {
         onClose={() => setShowCreate(false)}
         onCreate={createTeam}
       />
+
+      {editingTeam && (
+        <EditTeamModal
+          open
+          team={editingTeam}
+          onClose={() => setEditingTeam(null)}
+          onUpdated={(updated) => {
+            updateCachedTeam(updated)
+            setEditingTeam(null)
+            toast.success('Team updated')
+          }}
+        />
+      )}
 
       <ConfirmDialog
         open={deletingTeam !== null}

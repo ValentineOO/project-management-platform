@@ -63,6 +63,7 @@ class ProjectController extends Controller
         $this->authorize('update', $project);
 
         $project->update($request->validated());
+        $project->load('team');
 
         return response()->json(['project' => $project]);
     }

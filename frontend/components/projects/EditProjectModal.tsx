@@ -9,13 +9,15 @@ import { Textarea } from '@/components/ui/textarea'
 import { Select, SelectContent, SelectItem, SelectTrigger } from '@/components/ui/select'
 import { extractApiErrors } from '@/lib/utils'
 import { updateProject } from '@/services/projects'
-import type { Project } from '@/types'
+import type { Project, Team } from '@/types'
+import type { ProjectWithTeam } from '@/hooks/useProjects'
 
 interface EditProjectModalProps {
   open: boolean
-  project: Project
+  project: ProjectWithTeam
+  teams: Team[]
   onClose: () => void
-  onUpdated: (project: Project) => void
+  onUpdated: (project: ProjectWithTeam) => void
 }
 
 const STATUS_OPTIONS: { value: Project['status']; label: string }[] = [
@@ -24,14 +26,16 @@ const STATUS_OPTIONS: { value: Project['status']; label: string }[] = [
   { value: 'archived', label: 'Archived' },
 ]
 
-export function EditProjectModal({ open, project, onClose, onUpdated }: EditProjectModalProps) {
+export function EditProjectModal({ open, project, teams, onClose, onUpdated }: EditProjectModalProps) {
   const nameId = useId()
   const descId = useId()
   const statusId = useId()
+  const teamId = useId()
 
   const [name, setName] = useState(project.name)
   const [description, setDescription] = useState(project.description ?? '')
   const [status, setStatus] = useState<Project['status']>(project.status)
+  const [selectedTeamId, setSelectedTeamId] = useState<number>(project.team_id)
   const [loading, setLoading] = useState(false)
   const [errors, setErrors] = useState<Record<string, string>>({})
 
@@ -40,6 +44,7 @@ export function EditProjectModal({ open, project, onClose, onUpdated }: EditProj
       setName(project.name)
       setDescription(project.description ?? '')
       setStatus(project.status)
+      setSelectedTeamId(project.team_id)
       setErrors({})
     }
   }, [open, project])
@@ -53,6 +58,7 @@ export function EditProjectModal({ open, project, onClose, onUpdated }: EditProj
         name: name.trim(),
         description: description.trim() || null,
         status,
+        team_id: selectedTeamId,
       })
       onUpdated(updated)
       onClose()
@@ -64,6 +70,7 @@ export function EditProjectModal({ open, project, onClose, onUpdated }: EditProj
   }
 
   const selectedStatusLabel = STATUS_OPTIONS.find((o) => o.value === status)?.label
+  const selectedTeamName = teams.find((t) => t.id === selectedTeamId)?.name
 
   return (
     <Dialog open={open} onOpenChange={(o) => !o && onClose()}>
@@ -98,6 +105,20 @@ export function EditProjectModal({ open, project, onClose, onUpdated }: EditProj
               <SelectContent>
                 {STATUS_OPTIONS.map((o) => (
                   <SelectItem key={o.value} value={o.value}>{o.label}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+
+          <div className="space-y-1.5">
+            <Label htmlFor={teamId}>Team</Label>
+            <Select value={String(selectedTeamId)} onValueChange={(v) => setSelectedTeamId(Number(v))}>
+              <SelectTrigger id={teamId}>
+                <span>{selectedTeamName ?? 'Select team'}</span>
+              </SelectTrigger>
+              <SelectContent>
+                {teams.map((t) => (
+                  <SelectItem key={t.id} value={String(t.id)}>{t.name}</SelectItem>
                 ))}
               </SelectContent>
             </Select>

@@ -43,5 +43,15 @@ export function useTeams() {
     }
   }, [])
 
-  return { teams, loading, error, createTeam }
+  const updateCachedTeam = useCallback((updated: Team) => {
+    teamsCache = teamsCache ? teamsCache.map((t) => (t.id === updated.id ? { ...t, ...updated } : t)) : null
+    setTeams((prev) => prev.map((t) => (t.id === updated.id ? { ...t, ...updated } : t)))
+  }, [])
+
+  const removeFromCache = useCallback((teamId: number) => {
+    teamsCache = teamsCache ? teamsCache.filter((t) => t.id !== teamId) : null
+    setTeams((prev) => prev.filter((t) => t.id !== teamId))
+  }, [])
+
+  return { teams, loading, error, createTeam, updateCachedTeam, removeFromCache }
 }

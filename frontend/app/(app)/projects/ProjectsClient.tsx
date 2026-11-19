@@ -13,7 +13,6 @@ import { ConfirmDialog } from '@/components/ui/confirm-dialog'
 import { useProjects } from '@/hooks/useProjects'
 import { deleteProject } from '@/services/projects'
 import type { ProjectWithTeam } from '@/hooks/useProjects'
-import type { Project } from '@/types'
 
 export function ProjectsClient() {
   const { projects, teams, loading, error, createProject, removeProject, updateCachedProject } = useProjects()
@@ -39,8 +38,8 @@ export function ProjectsClient() {
     }
   }
 
-  function handleProjectUpdated(updated: Project) {
-    updateCachedProject({ ...updated, team: editingProject!.team })
+  function handleProjectUpdated(updated: ProjectWithTeam) {
+    updateCachedProject(updated)
     setEditingProject(null)
     toast.success('Project updated')
   }
@@ -108,6 +107,7 @@ export function ProjectsClient() {
         <EditProjectModal
           open
           project={editingProject}
+          teams={teams}
           onClose={() => setEditingProject(null)}
           onUpdated={handleProjectUpdated}
         />
