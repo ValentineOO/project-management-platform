@@ -45,6 +45,15 @@ api.interceptors.response.use(
       await initCsrf()
       return api.request(error.config)
     }
+
+    if (error.response?.status === 401) {
+      const url: string = error.config?.url ?? ''
+      const isAuthEndpoint = url.includes('/auth/')
+      if (!isAuthEndpoint && typeof window !== 'undefined') {
+        window.location.href = '/login'
+      }
+    }
+
     return Promise.reject(error)
   }
 )
