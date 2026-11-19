@@ -68,7 +68,7 @@ export function ProjectDetailClient({ projectId }: ProjectDetailClientProps) {
                 {project.status}
               </Badge>
             )}
-            <Button size="sm" onClick={() => setShowCreate(true)}>
+            <Button onClick={() => setShowCreate(true)}>
               <Plus size={16} aria-hidden="true" />
               Add task
             </Button>
@@ -85,7 +85,7 @@ export function ProjectDetailClient({ projectId }: ProjectDetailClientProps) {
       ) : tasks.length === 0 ? (
         <div className="rounded-lg border border-dashed p-12 text-center">
           <p className="text-sm text-muted-foreground">No tasks yet.</p>
-          <Button variant="outline" size="sm" className="mt-4" onClick={() => setShowCreate(true)}>
+          <Button variant="outline" className="mt-4" onClick={() => setShowCreate(true)}>
             Add the first task
           </Button>
         </div>

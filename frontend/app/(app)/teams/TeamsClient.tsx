@@ -25,7 +25,7 @@ export function TeamsClient() {
           <h1 className="text-xl font-semibold">Teams</h1>
           <p className="text-sm text-muted-foreground">Manage your teams and their members.</p>
         </div>
-        <Button size="sm" onClick={() => setShowModal(true)}>
+        <Button onClick={() => setShowModal(true)}>
           <Plus size={16} aria-hidden="true" />
           New team
         </Button>
@@ -36,7 +36,7 @@ export function TeamsClient() {
       {teams.length === 0 ? (
         <div className="rounded-lg border border-dashed p-12 text-center">
           <p className="text-sm text-muted-foreground">You&apos;re not part of any team yet.</p>
-          <Button variant="outline" size="sm" className="mt-4" onClick={() => setShowModal(true)}>
+          <Button variant="outline" className="mt-4" onClick={() => setShowModal(true)}>
             Create a team
           </Button>
         </div>

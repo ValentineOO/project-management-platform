@@ -20,7 +20,6 @@ export function ProjectsClient() {
           <p className="text-sm text-muted-foreground">All projects across your teams.</p>
         </div>
         <Button
-          size="sm"
           onClick={() => setShowModal(true)}
           disabled={teams.length === 0}
           aria-label="Create new project"
@@ -38,7 +37,7 @@ export function ProjectsClient() {
         <div className="rounded-lg border border-dashed p-12 text-center">
           <p className="text-sm text-muted-foreground">No projects yet.</p>
           {teams.length > 0 && (
-            <Button variant="outline" size="sm" className="mt-4" onClick={() => setShowModal(true)}>
+            <Button variant="outline" className="mt-4" onClick={() => setShowModal(true)}>
               Create your first project
             </Button>
           )}
