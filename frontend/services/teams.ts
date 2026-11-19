@@ -24,8 +24,11 @@ export async function deleteTeam(teamId: number): Promise<void> {
   await api.delete(`/api/teams/${teamId}`)
 }
 
-export async function addTeamMember(teamId: number, email: string): Promise<Pick<User, 'id' | 'name' | 'email'> & { pivot: { role: string } }> {
-  const { data } = await api.post(`/api/teams/${teamId}/members`, { email })
+export async function addTeamMember(
+  teamId: number,
+  payload: { name: string; email: string },
+): Promise<Pick<User, 'id' | 'name' | 'email'> & { pivot: { role: string } }> {
+  const { data } = await api.post(`/api/teams/${teamId}/members`, payload)
   return data.member
 }
 

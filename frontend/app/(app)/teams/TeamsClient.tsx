@@ -73,37 +73,37 @@ export function TeamsClient() {
                   className="absolute inset-0 rounded-lg z-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
                   aria-label={`Open team ${team.name}`}
                 />
-                <Card className="h-full transition-shadow group-hover:shadow-md pointer-events-none">
-                  <CardContent className="pt-5 space-y-3">
+                <Card className="h-full transition-shadow group-hover:shadow-md">
+                  <CardContent className="pt-5 pb-3 space-y-2">
                     <div className="flex items-center gap-2">
                       <Users size={16} className="shrink-0 text-muted-foreground" aria-hidden="true" />
                       <span className="font-medium truncate">{team.name}</span>
                     </div>
                     {team.description && (
-                      <p className="text-sm text-muted-foreground line-clamp-2">{team.description}</p>
+                      <p className="text-sm text-muted-foreground line-clamp-2 pl-5">{team.description}</p>
                     )}
+                    <div className="flex items-center justify-end gap-1 pt-2 border-t border-border/50 relative z-10">
+                      <Button
+                        size="icon"
+                        variant="ghost"
+                        className="h-7 w-7 text-muted-foreground hover:text-foreground"
+                        aria-label={`Edit ${team.name}`}
+                        onClick={(e) => { e.preventDefault(); router.push(`/teams/${team.id}`) }}
+                      >
+                        <Pencil size={13} aria-hidden="true" />
+                      </Button>
+                      <Button
+                        size="icon"
+                        variant="ghost"
+                        className="h-7 w-7 text-muted-foreground hover:text-destructive"
+                        aria-label={`Delete ${team.name}`}
+                        onClick={(e) => { e.preventDefault(); setDeletingTeam(team) }}
+                      >
+                        <Trash2 size={13} aria-hidden="true" />
+                      </Button>
+                    </div>
                   </CardContent>
                 </Card>
-                <div className="absolute top-3 right-3 z-10 flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                  <Button
-                    size="icon"
-                    variant="ghost"
-                    className="h-7 w-7 text-muted-foreground hover:text-foreground pointer-events-auto"
-                    aria-label={`Edit ${team.name}`}
-                    onClick={(e) => { e.preventDefault(); router.push(`/teams/${team.id}`) }}
-                  >
-                    <Pencil size={13} aria-hidden="true" />
-                  </Button>
-                  <Button
-                    size="icon"
-                    variant="ghost"
-                    className="h-7 w-7 text-muted-foreground hover:text-destructive pointer-events-auto"
-                    aria-label={`Delete ${team.name}`}
-                    onClick={(e) => { e.preventDefault(); setDeletingTeam(team) }}
-                  >
-                    <Trash2 size={13} aria-hidden="true" />
-                  </Button>
-                </div>
               </div>
             </li>
           ))}

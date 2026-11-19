@@ -37,6 +37,7 @@ export function ConfirmDialog({
           </Button>
           <Button
             variant={destructive ? 'destructive' : 'default'}
+            className={destructive ? 'bg-destructive text-white hover:bg-destructive/90 border-0' : undefined}
             onClick={onConfirm}
             disabled={loading}
             aria-busy={loading}

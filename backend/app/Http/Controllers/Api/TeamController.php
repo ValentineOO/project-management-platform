@@ -78,24 +78,28 @@ class TeamController extends Controller
         $this->authorize('update', $team);
 
         $validated = $request->validate([
-            'email' => ['required', 'email'],
+            'name'  => ['required', 'string', 'max:255'],
+            'email' => ['required', 'email', 'max:255'],
         ]);
 
-        $user = User::where('email', $validated['email'])->first();
-
-        if (! $user) {
-            return response()->json(['errors' => ['email' => 'No user found with that email address.']], 422);
-        }
+        $user = User::firstOrCreate(
+            ['email' => $validated['email']],
+            [
+                'name'               => $validated['name'],
+                'password'           => bcrypt(\Illuminate\Support\Str::random(16)),
+                'email_verified_at'  => now(),
+            ],
+        );
 
         if ($team->members()->where('user_id', $user->id)->exists()) {
-            return response()->json(['errors' => ['email' => 'This user is already a member.']], 422);
+            return response()->json(['errors' => ['email' => 'This person is already a member of the team.']], 422);
         }
 
         $team->members()->attach($user->id, ['role' => 'member', 'joined_at' => now()]);
 
-        $user->load('teams');
-
-        return response()->json(['member' => $user->only(['id', 'name', 'email']) + ['pivot' => ['role' => 'member']]], 201);
+        return response()->json([
+            'member' => $user->only(['id', 'name', 'email']) + ['pivot' => ['role' => 'member']],
+        ], 201);
     }
 
     public function removeMember(Request $request, Team $team, User $user): JsonResponse

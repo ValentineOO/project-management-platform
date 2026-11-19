@@ -16,46 +16,52 @@ interface ProjectHeaderProps {
 
 export function ProjectHeader({ project, onAddTask, onEdit, onDelete }: ProjectHeaderProps) {
   return (
-    <div>
+    <div className="space-y-3">
       <Link
         href="/projects"
-        className="inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground mb-3"
+        className="inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground"
       >
         <ArrowLeft size={14} aria-hidden="true" />
         Projects
       </Link>
 
       <div className="flex items-start justify-between gap-4">
-        <div className="space-y-1">
-          <h1 className="text-xl font-semibold">{project?.name}</h1>
+        <div className="space-y-1 min-w-0">
+          <div className="flex items-center gap-2 flex-wrap">
+            <h1 className="text-xl font-semibold">{project?.name}</h1>
+            {project && (
+              <Badge className={cn('text-xs font-medium border-0', PROJECT_STATUS_COLORS[project.status])}>
+                {PROJECT_STATUS_LABELS[project.status] ?? project.status}
+              </Badge>
+            )}
+          </div>
           {project?.description && (
             <p className="text-sm text-muted-foreground">{project.description}</p>
           )}
         </div>
-        <div className="flex items-center gap-2 shrink-0">
-          {project && (
-            <Badge className={cn('text-xs font-medium border-0', PROJECT_STATUS_COLORS[project.status])}>
-              {PROJECT_STATUS_LABELS[project.status] ?? project.status}
-            </Badge>
-          )}
-          {project && (
-            <Button variant="outline" size="sm" onClick={onEdit}>
-              <Pencil size={14} aria-hidden="true" />
-              Edit
-            </Button>
-          )}
-          {project && (
-            <Button variant="outline" size="sm" onClick={onDelete} className="text-destructive hover:bg-destructive hover:text-destructive-foreground">
-              <Trash2 size={14} aria-hidden="true" />
-              Delete
-            </Button>
-          )}
-          <Button onClick={onAddTask}>
-            <Plus size={16} aria-hidden="true" />
-            Add task
+        <Button onClick={onAddTask} className="shrink-0">
+          <Plus size={16} aria-hidden="true" />
+          Add task
+        </Button>
+      </div>
+
+      {project && (
+        <div className="flex items-center gap-2">
+          <Button variant="outline" size="sm" onClick={onEdit}>
+            <Pencil size={13} aria-hidden="true" />
+            Edit
+          </Button>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={onDelete}
+            className="text-destructive hover:bg-destructive hover:text-white border-destructive/30"
+          >
+            <Trash2 size={13} aria-hidden="true" />
+            Delete
           </Button>
         </div>
-      </div>
+      )}
     </div>
   )
 }

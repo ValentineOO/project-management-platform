@@ -299,12 +299,15 @@ function AddMemberModal({
   onClose: () => void
   onAdded: (member: object) => void
 }) {
+  const nameId = useId()
   const emailId = useId()
+  const [name, setName] = useState('')
   const [email, setEmail] = useState('')
   const [loading, setLoading] = useState(false)
   const [errors, setErrors] = useState<Record<string, string>>({})
 
   function handleClose() {
+    setName('')
     setEmail('')
     setErrors({})
     onClose()
@@ -315,7 +318,7 @@ function AddMemberModal({
     setLoading(true)
     setErrors({})
     try {
-      const member = await addTeamMember(teamId, email.trim())
+      const member = await addTeamMember(teamId, { name: name.trim(), email: email.trim() })
       onAdded(member)
       handleClose()
     } catch (err) {
@@ -330,9 +333,23 @@ function AddMemberModal({
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
           <DialogTitle>Add member</DialogTitle>
-          <DialogDescription>Invite an existing user to this team by their email address.</DialogDescription>
+          <DialogDescription>Add a teammate by name and email. If they don&apos;t have an account yet, one will be created for them.</DialogDescription>
         </DialogHeader>
         <form onSubmit={handleSubmit} noValidate className="space-y-4 mt-2">
+          <div className="space-y-1.5">
+            <Label htmlFor={nameId}>Full name <span className="text-destructive" aria-hidden="true">*</span></Label>
+            <Input
+              id={nameId}
+              type="text"
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              placeholder="Jane Smith"
+              required
+              aria-invalid={!!errors.name}
+              aria-describedby={errors.name ? `${nameId}-err` : undefined}
+            />
+            {errors.name && <p id={`${nameId}-err`} role="alert" className="text-xs text-destructive">{errors.name}</p>}
+          </div>
           <div className="space-y-1.5">
             <Label htmlFor={emailId}>Email address <span className="text-destructive" aria-hidden="true">*</span></Label>
             <Input
@@ -340,7 +357,7 @@ function AddMemberModal({
               type="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              placeholder="colleague@example.com"
+              placeholder="jane@example.com"
               required
               aria-invalid={!!errors.email}
               aria-describedby={errors.email ? `${emailId}-err` : undefined}
