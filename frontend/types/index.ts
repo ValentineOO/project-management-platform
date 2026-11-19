@@ -19,7 +19,7 @@ export interface Project {
   name: string
   description: string | null
   team_id: number
-  status: 'active' | 'archived'
+  status: 'active' | 'archived' | 'completed'
   pivot?: { role: 'manager' | 'member' | 'viewer' }
   created_at: string
   updated_at: string

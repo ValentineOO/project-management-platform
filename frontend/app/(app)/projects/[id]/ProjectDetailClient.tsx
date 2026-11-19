@@ -3,6 +3,7 @@
 import { useState } from 'react'
 import { Skeleton } from '@/components/ui/skeleton'
 import { ProjectHeader } from '@/components/projects/ProjectHeader'
+import { EditProjectModal } from '@/components/projects/EditProjectModal'
 import { ProjectProgress } from '@/components/projects/ProjectProgress'
 import { TaskFilters } from '@/components/tasks/TaskFilters'
 import { TaskList } from '@/components/tasks/TaskList'
@@ -12,14 +13,15 @@ import { TasksSkeleton } from '@/components/tasks/TasksSkeleton'
 import { useTasks } from '@/hooks/useTasks'
 import { useProject } from '@/hooks/useProject'
 import { useTaskFilters } from '@/hooks/useTaskFilters'
-import type { Task } from '@/types'
+import { toast } from 'sonner'
+import type { Task, Project } from '@/types'
 
 interface ProjectDetailClientProps {
   projectId: number
 }
 
 export function ProjectDetailClient({ projectId }: ProjectDetailClientProps) {
-  const { project, members, taskStats, loading: loadingProject } = useProject(projectId)
+  const { project, members, taskStats, loading: loadingProject, setProject } = useProject(projectId)
   const { filters, filterStatus, filterPriority, filterAssignee, hasFilters,
           setFilterStatus, setFilterPriority, setFilterAssignee, clearFilters } =
     useTaskFilters()
@@ -27,7 +29,13 @@ export function ProjectDetailClient({ projectId }: ProjectDetailClientProps) {
     useTasks(projectId, filters)
 
   const [showCreate, setShowCreate] = useState(false)
+  const [showEditProject, setShowEditProject] = useState(false)
   const [editing, setEditing] = useState<Task | null>(null)
+
+  function handleProjectUpdated(updated: Project) {
+    setProject(updated)
+    toast.success('Project updated')
+  }
 
   const liveStats: Record<string, number> = loading
     ? taskStats
@@ -48,7 +56,11 @@ export function ProjectDetailClient({ projectId }: ProjectDetailClientProps) {
 
   return (
     <div className="space-y-6">
-      <ProjectHeader project={project} onAddTask={() => setShowCreate(true)} />
+      <ProjectHeader
+        project={project}
+        onAddTask={() => setShowCreate(true)}
+        onEdit={() => setShowEditProject(true)}
+      />
 
       <ProjectProgress stats={liveStats} members={members} />
 
@@ -91,6 +103,15 @@ export function ProjectDetailClient({ projectId }: ProjectDetailClientProps) {
           task={editing}
           members={members}
           onUpdate={updateTask}
+        />
+      )}
+
+      {project && (
+        <EditProjectModal
+          open={showEditProject}
+          project={project}
+          onClose={() => setShowEditProject(false)}
+          onUpdated={handleProjectUpdated}
         />
       )}
     </div>

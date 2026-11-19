@@ -38,5 +38,11 @@ export function useProject(projectId: number) {
       .finally(() => setLoading(false))
   }, [projectId])
 
-  return { project, members, taskStats, loading, error }
+  function updateCachedProject(updated: Project) {
+    setProject(updated)
+    const existing = cache.get(projectId)
+    if (existing) cache.set(projectId, { ...existing, project: updated })
+  }
+
+  return { project, members, taskStats, loading, error, setProject: updateCachedProject }
 }
