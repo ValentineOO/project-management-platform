@@ -3,7 +3,6 @@
 namespace App\Services;
 
 use App\Models\ActivityLog;
-use App\Models\Task;
 use App\Models\User;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
@@ -62,10 +61,10 @@ class DashboardService
         $recentActivity = ActivityLog::with('causer:id,name')
             ->where(function ($q) use ($projectIds, $teamIds) {
                 $q->whereIn('project_id', $projectIds)
-                  ->orWhere(function ($q2) use ($teamIds) {
-                      $q2->whereNull('project_id')
-                         ->whereIn('subject_id', $teamIds);
-                  });
+                    ->orWhere(function ($q2) use ($teamIds) {
+                        $q2->whereNull('project_id')
+                            ->whereIn('subject_id', $teamIds);
+                    });
             })
             ->latest('created_at')
             ->limit(15)

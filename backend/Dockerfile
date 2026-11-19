@@ -36,8 +36,7 @@ RUN mkdir -p bootstrap/cache storage/framework/{cache,sessions,views} storage/lo
     && chmod -R 775 bootstrap/cache storage \
     && composer dump-autoload --optimize --classmap-authoritative \
     && php artisan config:cache \
-    && php artisan route:cache \
-    && php artisan view:cache
+    && php artisan route:cache
 
 EXPOSE 8000
 CMD ["php", "artisan", "serve", "--host=0.0.0.0", "--port=8000"]

@@ -5,13 +5,19 @@ namespace Database\Seeders\Demo;
 class DemoData
 {
     public const TEAMS = 20;
+
     public const USERS = 150;
+
     public const PROJECTS_PER_TEAM = 5;
+
     public const TASKS_PER_PROJECT = 500;
 
     public const STATUSES = ['todo', 'in_progress', 'in_review', 'done'];
+
     public const PRIORITIES = ['low', 'medium', 'high', 'urgent'];
+
     public const STATUS_WEIGHTS = [40, 25, 15, 20];
+
     public const PRIORITY_WEIGHTS = [30, 35, 25, 10];
 
     public const TEAM_NAMES = [
@@ -41,6 +47,7 @@ class DemoData
     ];
 
     public const PROJECT_ADJECTIVES = ['Core', 'Next', 'Unified', 'Edge', 'Smart', 'Rapid', 'Deep', 'Open', 'Pro'];
+
     public const PROJECT_NOUNS = ['Platform', 'Engine', 'Service', 'API', 'Portal', 'Hub', 'Pipeline', 'Suite', 'Toolkit'];
 
     public static function weighted(array $items, array $weights): string
@@ -53,6 +60,7 @@ class DemoData
                 return $item;
             }
         }
+
         return $items[array_key_last($items)];
     }
 }

@@ -21,9 +21,9 @@ class TaskController extends Controller
         $this->authorize('view', $project);
 
         $tasks = $project->tasks()
-            ->when($request->status, fn($q, $v) => $q->where('status', $v))
-            ->when($request->assignee_id, fn($q, $v) => $q->where('assignee_id', $v))
-            ->when($request->priority, fn($q, $v) => $q->where('priority', $v))
+            ->when($request->status, fn ($q, $v) => $q->where('status', $v))
+            ->when($request->assignee_id, fn ($q, $v) => $q->where('assignee_id', $v))
+            ->when($request->priority, fn ($q, $v) => $q->where('priority', $v))
             ->orderByDesc('created_at')
             ->orderByDesc('id')
             ->cursorPaginate(20);
@@ -38,7 +38,7 @@ class TaskController extends Controller
         $task = $project->tasks()->create([
             ...$request->validated(),
             'reporter_id' => $request->user()->id,
-            'version'     => 1,
+            'version' => 1,
         ]);
 
         return response()->json(['task' => $task], 201);
@@ -72,7 +72,7 @@ class TaskController extends Controller
                     ]));
 
                 if ($affected === 0) {
-                    throw new TaskConflictException();
+                    throw new TaskConflictException;
                 }
 
                 $task = $task->fresh();
@@ -83,7 +83,7 @@ class TaskController extends Controller
                     array_flip(['status', 'priority', 'assignee_id', 'title', 'due_date'])
                 );
 
-                if (!empty($tracked)) {
+                if (! empty($tracked)) {
                     ActivityLog::create([
                         'causer_id' => $user->id,
                         'project_id' => $task->project_id,

@@ -30,7 +30,7 @@ class ProjectController extends Controller
         $project = $team->projects()->create([
             ...$request->validated(),
             'owner_id' => $request->user()->id,
-            'status'   => 'active',
+            'status' => 'active',
         ]);
 
         $project->members()->attach($request->user()->id, ['role' => 'manager']);
@@ -52,8 +52,8 @@ class ProjectController extends Controller
         $project->load(['owner', 'team']);
 
         return response()->json([
-            'project'    => $project,
-            'members'    => $project->team->members()->select('users.id', 'users.name')->get(),
+            'project' => $project,
+            'members' => $project->team->members()->select('users.id', 'users.name')->get(),
             'task_stats' => $taskStats,
         ]);
     }

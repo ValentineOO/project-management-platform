@@ -16,6 +16,7 @@ function makeProjectWithOwner(): array
     $team->members()->attach($owner->id, ['role' => 'owner']);
     $project = Project::factory()->create(['team_id' => $team->id, 'owner_id' => $owner->id]);
     $project->members()->attach($owner->id, ['role' => 'manager']);
+
     return [$owner, $project];
 }
 

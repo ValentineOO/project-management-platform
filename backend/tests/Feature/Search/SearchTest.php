@@ -23,6 +23,7 @@ function makeSearchFixture(): array
         'reporter_id' => $user->id,
         'title' => 'Fix authentication middleware',
     ]);
+
     return [$user, $project, $task];
 }
 

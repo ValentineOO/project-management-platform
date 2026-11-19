@@ -8,6 +8,7 @@ use Illuminate\Support\Facades\DB;
 class ExplainAnalyze extends Command
 {
     protected $signature = 'db:explain {--save : Write output to storage/explain-analyze.txt}';
+
     protected $description = 'Run EXPLAIN ANALYZE on key queries to validate index usage';
 
     public function handle(): int
@@ -16,8 +17,9 @@ class ExplainAnalyze extends Command
         $searchTerm = 'authentication';
         $userId = DB::table('users')->value('id');
 
-        if (!$projectId) {
+        if (! $projectId) {
             $this->error('No data found — run php artisan db:seed first.');
+
             return 1;
         }
 
@@ -35,14 +37,14 @@ class ExplainAnalyze extends Command
                 'bindings' => [$projectId, 'in_progress'],
             ],
             'Full-text search with pg_trgm ILIKE on tasks.title' => [
-                'sql' => "SELECT id, title, project_id FROM tasks
-                          WHERE title ILIKE ? AND deleted_at IS NULL LIMIT 10",
+                'sql' => 'SELECT id, title, project_id FROM tasks
+                          WHERE title ILIKE ? AND deleted_at IS NULL LIMIT 10',
                 'bindings' => ["%{$searchTerm}%"],
             ],
             'Full-text search with pg_trgm ILIKE on projects.name' => [
-                'sql' => "SELECT id, name, status FROM projects
-                          WHERE name ILIKE ? AND deleted_at IS NULL LIMIT 10",
-                'bindings' => ["%Platform%"],
+                'sql' => 'SELECT id, name, status FROM projects
+                          WHERE name ILIKE ? AND deleted_at IS NULL LIMIT 10',
+                'bindings' => ['%Platform%'],
             ],
             'Dashboard: task aggregation by status for assignee' => [
                 'sql' => 'SELECT status, count(*) as total FROM tasks
@@ -61,7 +63,7 @@ class ExplainAnalyze extends Command
         $output = [];
         $output[] = str_repeat('=', 80);
         $output[] = 'EXPLAIN ANALYZE — Project Management Platform';
-        $output[] = 'Generated: ' . now()->toDateTimeString();
+        $output[] = 'Generated: '.now()->toDateTimeString();
         $output[] = 'Dataset: ~50,000 tasks across 100 projects';
         $output[] = str_repeat('=', 80);
 
@@ -70,7 +72,7 @@ class ExplainAnalyze extends Command
             $this->info("▶ {$label}");
 
             $plan = DB::select(
-                'EXPLAIN (ANALYZE, BUFFERS, FORMAT TEXT) ' . $query['sql'],
+                'EXPLAIN (ANALYZE, BUFFERS, FORMAT TEXT) '.$query['sql'],
                 $query['bindings']
             );
 
@@ -80,7 +82,7 @@ class ExplainAnalyze extends Command
 
             $output[] = '';
             $output[] = "── {$label}";
-            $output[] = "   SQL: " . preg_replace('/\s+/', ' ', trim($query['sql']));
+            $output[] = '   SQL: '.preg_replace('/\s+/', ' ', trim($query['sql']));
             $output[] = '';
             $output[] = $planText;
             $output[] = str_repeat('-', 80);

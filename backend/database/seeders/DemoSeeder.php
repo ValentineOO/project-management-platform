@@ -33,9 +33,9 @@ class DemoSeeder extends Seeder
         $this->command->info('');
         $this->command->info(
             "  Done in {$elapsed}s — "
-            . number_format(count($taskIds)) . ' tasks, '
-            . number_format($logCount) . ' activity logs, '
-            . count($users) . ' users across ' . DemoData::TEAMS . ' teams.'
+            .number_format(count($taskIds)).' tasks, '
+            .number_format($logCount).' activity logs, '
+            .count($users).' users across '.DemoData::TEAMS.' teams.'
         );
         $this->command->info('  → Resetting sequences…');
         foreach (['users', 'teams', 'projects', 'tasks', 'activity_logs'] as $table) {

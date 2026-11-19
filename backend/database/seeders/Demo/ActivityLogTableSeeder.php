@@ -10,7 +10,7 @@ class ActivityLogTableSeeder
     public function __construct(private readonly Command $command) {}
 
     /**
-     * @param  int[]                              $taskIds
+     * @param  int[]  $taskIds
      * @param  array<int, array<string, mixed>>  $users
      */
     public function run(array $taskIds, array $users): int
@@ -24,7 +24,7 @@ class ActivityLogTableSeeder
             ->pluck('project_id', 'id')
             ->all();
 
-        $rows  = [];
+        $rows = [];
         $logId = 1;
         $count = 0;
 
@@ -32,14 +32,14 @@ class ActivityLogTableSeeder
             $projectId = $taskProjectMap[$taskId] ?? null;
 
             $rows[] = [
-                'id'           => $logId++,
-                'causer_id'    => $userIds[array_rand($userIds)],
-                'project_id'   => $projectId,
+                'id' => $logId++,
+                'causer_id' => $userIds[array_rand($userIds)],
+                'project_id' => $projectId,
                 'subject_type' => 'App\Models\Task',
-                'subject_id'   => $taskId,
-                'action'       => 'task.created',
-                'payload'      => json_encode(['status' => 'todo']),
-                'created_at'   => now()->subDays(rand(1, 120)),
+                'subject_id' => $taskId,
+                'action' => 'task.created',
+                'payload' => json_encode(['status' => 'todo']),
+                'created_at' => now()->subDays(rand(1, 120)),
             ];
             $count++;
 
@@ -47,16 +47,16 @@ class ActivityLogTableSeeder
                 $updates = rand(1, 3);
                 for ($u = 0; $u < $updates; $u++) {
                     $rows[] = [
-                        'id'           => $logId++,
-                        'causer_id'    => $userIds[array_rand($userIds)],
-                        'project_id'   => $projectId,
+                        'id' => $logId++,
+                        'causer_id' => $userIds[array_rand($userIds)],
+                        'project_id' => $projectId,
                         'subject_type' => 'App\Models\Task',
-                        'subject_id'   => $taskId,
-                        'action'       => 'task.updated',
-                        'payload'      => json_encode([
+                        'subject_id' => $taskId,
+                        'action' => 'task.updated',
+                        'payload' => json_encode([
                             'status' => DemoData::weighted(DemoData::STATUSES, DemoData::STATUS_WEIGHTS),
                         ]),
-                        'created_at'   => now()->subDays(rand(0, 30)),
+                        'created_at' => now()->subDays(rand(0, 30)),
                     ];
                     $count++;
                 }
@@ -68,7 +68,7 @@ class ActivityLogTableSeeder
             }
         }
 
-        if (!empty($rows)) {
+        if (! empty($rows)) {
             DB::table('activity_logs')->insert($rows);
         }
 

@@ -27,14 +27,14 @@ class TeamController extends Controller
     public function store(Request $request): JsonResponse
     {
         $validated = $request->validate([
-            'name'        => ['required', 'string', 'max:255'],
+            'name' => ['required', 'string', 'max:255'],
             'description' => ['nullable', 'string'],
         ]);
 
         $team = Team::create([
-            'owner_id'    => $request->user()->id,
-            'name'        => $validated['name'],
-            'slug'        => $this->uniqueSlug($validated['name']),
+            'owner_id' => $request->user()->id,
+            'name' => $validated['name'],
+            'slug' => $this->uniqueSlug($validated['name']),
             'description' => $validated['description'] ?? null,
         ]);
 
@@ -59,7 +59,7 @@ class TeamController extends Controller
         $this->authorize('update', $team);
 
         $validated = $request->validate([
-            'name'        => ['required', 'string', 'max:255'],
+            'name' => ['required', 'string', 'max:255'],
             'description' => ['nullable', 'string'],
         ]);
 
@@ -86,15 +86,15 @@ class TeamController extends Controller
         $this->authorize('update', $team);
 
         $validated = $request->validate([
-            'name'  => ['required', 'string', 'max:255'],
+            'name' => ['required', 'string', 'max:255'],
             'email' => ['required', 'email', 'max:255'],
         ]);
 
         $user = User::firstOrCreate(
             ['email' => $validated['email']],
             [
-                'name'              => $validated['name'],
-                'password'          => bcrypt($validated['email']),
+                'name' => $validated['name'],
+                'password' => bcrypt($validated['email']),
                 'email_verified_at' => now(),
             ],
         );
@@ -106,7 +106,7 @@ class TeamController extends Controller
         $team->members()->attach($user->id, ['role' => 'member', 'joined_at' => now()]);
 
         $this->log($request->user()->id, $team, 'team.member_added', [
-            'member_name'  => $user->name,
+            'member_name' => $user->name,
             'member_email' => $user->email,
         ]);
 
@@ -135,12 +135,12 @@ class TeamController extends Controller
     private function log(int $causerId, Team $team, string $action, array $payload): void
     {
         ActivityLog::create([
-            'causer_id'    => $causerId,
-            'project_id'   => null,
+            'causer_id' => $causerId,
+            'project_id' => null,
             'subject_type' => Team::class,
-            'subject_id'   => $team->id,
-            'action'       => $action,
-            'payload'      => $payload,
+            'subject_id' => $team->id,
+            'action' => $action,
+            'payload' => $payload,
         ]);
 
         app(DashboardService::class)->invalidate($causerId);
@@ -148,7 +148,7 @@ class TeamController extends Controller
 
     private function uniqueSlug(string $name): string
     {
-        $slug  = Str::slug($name);
+        $slug = Str::slug($name);
         $count = Team::where('slug', 'like', "{$slug}%")->count();
 
         return $count > 0 ? "{$slug}-{$count}" : $slug;

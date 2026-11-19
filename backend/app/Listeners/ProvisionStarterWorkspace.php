@@ -25,20 +25,20 @@ class ProvisionStarterWorkspace
             }
 
             $team = Team::create([
-                'owner_id'    => $user->id,
-                'name'        => "{$user->name}'s Workspace",
-                'slug'        => Str::slug($user->name) . '-' . Str::random(5),
+                'owner_id' => $user->id,
+                'name' => "{$user->name}'s Workspace",
+                'slug' => Str::slug($user->name).'-'.Str::random(5),
                 'description' => 'Your personal workspace. Invite teammates to collaborate.',
             ]);
 
             $team->members()->attach($user->id, ['role' => 'owner', 'joined_at' => now()]);
 
             $project = Project::create([
-                'team_id'     => $team->id,
-                'owner_id'    => $user->id,
-                'name'        => 'Getting Started',
+                'team_id' => $team->id,
+                'owner_id' => $user->id,
+                'name' => 'Getting Started',
                 'description' => 'A sample project to help you explore the platform.',
-                'status'      => 'active',
+                'status' => 'active',
             ]);
 
             $project->members()->attach($user->id, ['role' => 'manager', 'joined_at' => now()]);

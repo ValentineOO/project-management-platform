@@ -12,6 +12,7 @@ function makeTeamWithOwner(): array
     $owner = User::factory()->create();
     $team = Team::factory()->create(['owner_id' => $owner->id]);
     $team->members()->attach($owner->id, ['role' => 'owner']);
+
     return [$owner, $team];
 }
 

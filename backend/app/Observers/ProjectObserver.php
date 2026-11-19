@@ -12,12 +12,12 @@ class ProjectObserver
     public function created(Project $project): void
     {
         ActivityLog::create([
-            'causer_id'    => Auth::id(),
-            'project_id'   => $project->id,
+            'causer_id' => Auth::id(),
+            'project_id' => $project->id,
             'subject_type' => Project::class,
-            'subject_id'   => $project->id,
-            'action'       => 'project.created',
-            'payload'      => ['name' => $project->name],
+            'subject_id' => $project->id,
+            'action' => 'project.created',
+            'payload' => ['name' => $project->name],
         ]);
 
         $this->invalidateDashboard();
@@ -35,12 +35,12 @@ class ProjectObserver
         }
 
         ActivityLog::create([
-            'causer_id'    => Auth::id(),
-            'project_id'   => $project->id,
+            'causer_id' => Auth::id(),
+            'project_id' => $project->id,
             'subject_type' => Project::class,
-            'subject_id'   => $project->id,
-            'action'       => 'project.updated',
-            'payload'      => array_merge(['name' => $project->name], $tracked),
+            'subject_id' => $project->id,
+            'action' => 'project.updated',
+            'payload' => array_merge(['name' => $project->name], $tracked),
         ]);
 
         $this->invalidateDashboard();
@@ -49,12 +49,12 @@ class ProjectObserver
     public function deleted(Project $project): void
     {
         ActivityLog::create([
-            'causer_id'    => Auth::id(),
-            'project_id'   => null,
+            'causer_id' => Auth::id(),
+            'project_id' => null,
             'subject_type' => Project::class,
-            'subject_id'   => $project->id,
-            'action'       => 'project.deleted',
-            'payload'      => ['name' => $project->name],
+            'subject_id' => $project->id,
+            'action' => 'project.deleted',
+            'payload' => ['name' => $project->name],
         ]);
 
         $this->invalidateDashboard();

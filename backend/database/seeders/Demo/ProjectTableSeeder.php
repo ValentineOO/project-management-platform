@@ -13,7 +13,7 @@ class ProjectTableSeeder
 
     /**
      * @param  array<int, array<string, mixed>>  $teamRows
-     * @param  array<int, int[]>                 $teamMemberMap
+     * @param  array<int, int[]>  $teamMemberMap
      * @return array{array<int, array<string, mixed>>, array<int, int[]>}
      */
     public function run(array $teamRows, array $teamMemberMap): array
@@ -28,17 +28,17 @@ class ProjectTableSeeder
         foreach ($teamRows as $team) {
             for ($p = 0; $p < DemoData::PROJECTS_PER_TEAM; $p++) {
                 $teamMembers = $teamMemberMap[$team['id']];
-                $ownerId     = $teamMembers[array_rand($teamMembers)];
+                $ownerId = $teamMembers[array_rand($teamMembers)];
 
                 $projectRows[] = [
-                    'id'          => $projectId,
-                    'team_id'     => $team['id'],
-                    'owner_id'    => $ownerId,
-                    'name'        => $this->projectName(),
+                    'id' => $projectId,
+                    'team_id' => $team['id'],
+                    'owner_id' => $ownerId,
+                    'name' => $this->projectName(),
                     'description' => fake()->paragraph(),
-                    'status'      => self::STATUSES[array_rand(self::STATUSES)],
-                    'created_at'  => now()->subMonths(rand(1, 5)),
-                    'updated_at'  => now(),
+                    'status' => self::STATUSES[array_rand(self::STATUSES)],
+                    'created_at' => now()->subMonths(rand(1, 5)),
+                    'updated_at' => now(),
                 ];
 
                 $memberIds = array_slice(
@@ -55,9 +55,9 @@ class ProjectTableSeeder
 
                     $projectMemberRows[] = [
                         'project_id' => $projectId,
-                        'user_id'    => $userId,
-                        'role'       => $role,
-                        'joined_at'  => now()->subMonths(rand(1, 4)),
+                        'user_id' => $userId,
+                        'role' => $role,
+                        'joined_at' => now()->subMonths(rand(1, 4)),
                     ];
                 }
 
@@ -77,7 +77,7 @@ class ProjectTableSeeder
     private function projectName(): string
     {
         return DemoData::PROJECT_ADJECTIVES[array_rand(DemoData::PROJECT_ADJECTIVES)]
-            . ' '
-            . DemoData::PROJECT_NOUNS[array_rand(DemoData::PROJECT_NOUNS)];
+            .' '
+            .DemoData::PROJECT_NOUNS[array_rand(DemoData::PROJECT_NOUNS)];
     }
 }

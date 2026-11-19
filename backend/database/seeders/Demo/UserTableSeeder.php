@@ -20,26 +20,26 @@ class UserTableSeeder
         $rows = [];
 
         $rows[] = [
-            'id'                => 1,
-            'name'              => 'Demo User',
-            'email'             => 'demo@codefyve.test',
+            'id' => 1,
+            'name' => 'Demo User',
+            'email' => 'demo@codefyve.test',
             'email_verified_at' => now(),
-            'password'          => $password,
-            'remember_token'    => Str::random(10),
-            'created_at'        => now()->subMonths(6),
-            'updated_at'        => now(),
+            'password' => $password,
+            'remember_token' => Str::random(10),
+            'created_at' => now()->subMonths(6),
+            'updated_at' => now(),
         ];
 
         for ($i = 2; $i <= DemoData::USERS; $i++) {
             $rows[] = [
-                'id'                => $i,
-                'name'              => fake()->name(),
-                'email'             => fake()->unique()->safeEmail(),
+                'id' => $i,
+                'name' => fake()->name(),
+                'email' => fake()->unique()->safeEmail(),
                 'email_verified_at' => now(),
-                'password'          => $password,
-                'remember_token'    => Str::random(10),
-                'created_at'        => now()->subMonths(rand(1, 6)),
-                'updated_at'        => now(),
+                'password' => $password,
+                'remember_token' => Str::random(10),
+                'created_at' => now()->subMonths(rand(1, 6)),
+                'updated_at' => now(),
             ];
         }
 

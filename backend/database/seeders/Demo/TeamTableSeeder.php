@@ -24,17 +24,17 @@ class TeamTableSeeder
         $teamMemberRows = [];
 
         foreach (DemoData::TEAM_NAMES as $i => $name) {
-            $teamId  = $i + 1;
+            $teamId = $i + 1;
             $ownerId = $userIds[array_rand($userIds)];
 
             $teamRows[] = [
-                'id'          => $teamId,
-                'owner_id'    => $ownerId,
-                'name'        => $name,
-                'slug'        => Str::slug($name),
+                'id' => $teamId,
+                'owner_id' => $ownerId,
+                'name' => $name,
+                'slug' => Str::slug($name),
                 'description' => fake()->sentence(),
-                'created_at'  => now()->subMonths(rand(2, 6)),
-                'updated_at'  => now(),
+                'created_at' => now()->subMonths(rand(2, 6)),
+                'updated_at' => now(),
             ];
 
             $memberIds = array_slice(
@@ -50,9 +50,9 @@ class TeamTableSeeder
                     : fake()->randomElement(['admin', 'member', 'member', 'member']);
 
                 $teamMemberRows[] = [
-                    'team_id'   => $teamId,
-                    'user_id'   => $userId,
-                    'role'      => $role,
+                    'team_id' => $teamId,
+                    'user_id' => $userId,
+                    'role' => $role,
                     'joined_at' => now()->subMonths(rand(1, 5)),
                 ];
             }
