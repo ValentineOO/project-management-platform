@@ -1,18 +1,17 @@
 'use client'
 
 import { useState } from 'react'
-import { ArrowLeft, Plus } from 'lucide-react'
-import Link from 'next/link'
-import { Button } from '@/components/ui/button'
-import { Badge } from '@/components/ui/badge'
 import { Skeleton } from '@/components/ui/skeleton'
-import { TaskRow } from '@/components/tasks/TaskRow'
+import { ProjectHeader } from '@/components/projects/ProjectHeader'
+import { ProjectProgress } from '@/components/projects/ProjectProgress'
+import { TaskFilters } from '@/components/tasks/TaskFilters'
+import { TaskList } from '@/components/tasks/TaskList'
 import { CreateTaskModal } from '@/components/tasks/CreateTaskModal'
 import { EditTaskModal } from '@/components/tasks/EditTaskModal'
 import { TasksSkeleton } from '@/components/tasks/TasksSkeleton'
-import { ProjectProgress } from '@/components/projects/ProjectProgress'
 import { useTasks } from '@/hooks/useTasks'
 import { useProject } from '@/hooks/useProject'
+import { useTaskFilters } from '@/hooks/useTaskFilters'
 import type { Task } from '@/types'
 
 interface ProjectDetailClientProps {
@@ -21,8 +20,11 @@ interface ProjectDetailClientProps {
 
 export function ProjectDetailClient({ projectId }: ProjectDetailClientProps) {
   const { project, members, taskStats, loading: loadingProject } = useProject(projectId)
+  const { filters, filterStatus, filterPriority, filterAssignee, hasFilters,
+          setFilterStatus, setFilterPriority, setFilterAssignee, clearFilters } =
+    useTaskFilters()
   const { tasks, loading, loadingMore, error, hasMore, loadMore, createTask, updateTask } =
-    useTasks(projectId)
+    useTasks(projectId, filters)
 
   const [showCreate, setShowCreate] = useState(false)
   const [editing, setEditing] = useState<Task | null>(null)
@@ -46,66 +48,34 @@ export function ProjectDetailClient({ projectId }: ProjectDetailClientProps) {
 
   return (
     <div className="space-y-6">
-      <div>
-        <Link
-          href="/projects"
-          className="inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground mb-3"
-        >
-          <ArrowLeft size={14} aria-hidden="true" />
-          Projects
-        </Link>
-
-        <div className="flex items-start justify-between gap-4">
-          <div className="space-y-1">
-            <h1 className="text-xl font-semibold">{project?.name}</h1>
-            {project?.description && (
-              <p className="text-sm text-muted-foreground">{project.description}</p>
-            )}
-          </div>
-          <div className="flex items-center gap-2 shrink-0">
-            {project && (
-              <Badge variant={project.status === 'active' ? 'default' : 'secondary'} className="capitalize">
-                {project.status}
-              </Badge>
-            )}
-            <Button onClick={() => setShowCreate(true)}>
-              <Plus size={16} aria-hidden="true" />
-              Add task
-            </Button>
-          </div>
-        </div>
-      </div>
+      <ProjectHeader project={project} onAddTask={() => setShowCreate(true)} />
 
       <ProjectProgress stats={liveStats} members={members} />
 
-      {error && <p role="alert" className="text-sm text-destructive">{error}</p>}
+      <TaskFilters
+        filterStatus={filterStatus}
+        filterPriority={filterPriority}
+        filterAssignee={filterAssignee}
+        members={members}
+        hasFilters={hasFilters}
+        onStatusChange={setFilterStatus}
+        onPriorityChange={setFilterPriority}
+        onAssigneeChange={setFilterAssignee}
+        onClear={clearFilters}
+      />
 
-      {loading ? (
-        <TasksSkeleton />
-      ) : tasks.length === 0 ? (
-        <div className="rounded-lg border border-dashed p-12 text-center">
-          <p className="text-sm text-muted-foreground">No tasks yet.</p>
-          <Button variant="outline" className="mt-4" onClick={() => setShowCreate(true)}>
-            Add the first task
-          </Button>
-        </div>
-      ) : (
-        <section aria-label="Task list">
-          <ul className="rounded-lg border divide-y overflow-hidden">
-            {tasks.map((task) => (
-              <TaskRow key={task.id} task={task} onEdit={setEditing} />
-            ))}
-          </ul>
-
-          {hasMore && (
-            <div className="flex justify-center mt-4">
-              <Button variant="outline" size="sm" onClick={loadMore} disabled={loadingMore}>
-                {loadingMore ? 'Loading…' : 'Load more'}
-              </Button>
-            </div>
-          )}
-        </section>
-      )}
+      <TaskList
+        tasks={tasks}
+        loading={loading}
+        loadingMore={loadingMore}
+        hasMore={hasMore}
+        hasFilters={hasFilters}
+        error={error}
+        onLoadMore={loadMore}
+        onAddFirst={() => setShowCreate(true)}
+        onClearFilters={clearFilters}
+        onEdit={setEditing}
+      />
 
       <CreateTaskModal
         open={showCreate}

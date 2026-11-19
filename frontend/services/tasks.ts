@@ -1,13 +1,20 @@
 import api from '@/lib/api'
 import type { Task, CursorPaginatedResponse } from '@/types'
 
+export interface TaskFilters {
+  status?: string
+  priority?: string
+  assignee_id?: number
+}
+
 export async function fetchProjectTasks(
   projectId: number,
   cursor?: string,
+  filters?: TaskFilters,
 ): Promise<CursorPaginatedResponse<Task>> {
   const { data } = await api.get<CursorPaginatedResponse<Task>>(
     `/api/projects/${projectId}/tasks`,
-    { params: cursor ? { cursor } : undefined },
+    { params: { ...(cursor ? { cursor } : {}), ...filters } },
   )
   return data
 }

@@ -7,6 +7,7 @@ import {
   createTask as createTaskService,
   updateTask as updateTaskService,
   deleteTask as deleteTaskService,
+  type TaskFilters,
 } from '@/services/tasks'
 import { extractApiErrors } from '@/lib/utils'
 import type { Task } from '@/types'
@@ -15,7 +16,7 @@ export interface TaskConflict {
   current: Task
 }
 
-export function useTasks(projectId: number) {
+export function useTasks(projectId: number, filters: TaskFilters = {}) {
   const [tasks, setTasks] = useState<Task[]>([])
   const [nextCursor, setNextCursor] = useState<string | null>(null)
   const [loading, setLoading] = useState(true)
@@ -24,11 +25,13 @@ export function useTasks(projectId: number) {
   const projectIdRef = useRef(projectId)
   projectIdRef.current = projectId
 
+  const filtersKey = JSON.stringify(filters)
+
   const load = useCallback(async () => {
     setLoading(true)
     setError(null)
     try {
-      const page = await fetchProjectTasks(projectId)
+      const page = await fetchProjectTasks(projectId, undefined, filters)
       setTasks(page.data)
       setNextCursor(page.next_cursor ?? null)
     } catch {
@@ -36,7 +39,8 @@ export function useTasks(projectId: number) {
     } finally {
       setLoading(false)
     }
-  }, [projectId])
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [projectId, filtersKey])
 
   useEffect(() => { load() }, [load])
 
@@ -44,13 +48,14 @@ export function useTasks(projectId: number) {
     if (!nextCursor || loadingMore) return
     setLoadingMore(true)
     try {
-      const page = await fetchProjectTasks(projectId, nextCursor)
+      const page = await fetchProjectTasks(projectId, nextCursor, filters)
       setTasks((prev) => [...prev, ...page.data])
       setNextCursor(page.next_cursor ?? null)
     } finally {
       setLoadingMore(false)
     }
-  }, [projectId, nextCursor, loadingMore])
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [projectId, nextCursor, loadingMore, filtersKey])
 
   const createTask = useCallback(
     async (payload: Parameters<typeof createTaskService>[1]) => {
