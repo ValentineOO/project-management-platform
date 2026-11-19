@@ -18,13 +18,13 @@ class AuthController extends Controller
     {
         $user = User::create($request->only('name', 'email', 'password'));
 
-        event(new Registered($user));
-
         Auth::login($user);
 
         if ($request->hasSession()) {
             $request->session()->regenerate();
         }
+
+        event(new Registered($user));
 
         return response()->json(['user' => $user], 201);
     }

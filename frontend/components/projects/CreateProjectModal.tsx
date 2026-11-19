@@ -20,7 +20,7 @@ export function CreateProjectModal({ open, onClose, teams, onCreate }: CreatePro
   const nameId = useId()
   const descId = useId()
   const teamSelectId = useId()
-  const [selectedTeamId, setSelectedTeamId] = useState('')
+  const [selectedTeamId, setSelectedTeamId] = useState(() => teams.length === 1 ? String(teams[0].id) : '')
   const [loading, setLoading] = useState(false)
   const [errors, setErrors] = useState<Record<string, string>>({})
 
@@ -33,13 +33,18 @@ export function CreateProjectModal({ open, onClose, teams, onCreate }: CreatePro
     const description = fd.get('description') as string
     const team = Number(selectedTeamId)
 
+    if (!selectedTeamId) {
+      setErrors({ team_id: 'Please select a team.' })
+      return
+    }
+
     setLoading(true)
     setErrors({})
     const result = await onCreate(team, name, description || undefined)
     setLoading(false)
 
     if (result.ok) {
-      setSelectedTeamId('')
+      setSelectedTeamId(teams.length === 1 ? String(teams[0].id) : '')
       onClose()
     } else {
       setErrors(result.errors ?? {})
@@ -47,7 +52,7 @@ export function CreateProjectModal({ open, onClose, teams, onCreate }: CreatePro
   }
 
   function handleClose() {
-    setSelectedTeamId('')
+    setSelectedTeamId(teams.length === 1 ? String(teams[0].id) : '')
     setErrors({})
     onClose()
   }

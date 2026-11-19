@@ -72,7 +72,7 @@ erDiagram
         string subject_type
         bigint subject_id
         string action
-        jsonb payload
+        json payload
         timestamp created_at
     }
 
