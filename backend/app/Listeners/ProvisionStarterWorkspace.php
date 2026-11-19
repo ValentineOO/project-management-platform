@@ -5,6 +5,7 @@ namespace App\Listeners;
 use App\Models\Project;
 use App\Models\Team;
 use Illuminate\Auth\Events\Registered;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 
 class ProvisionStarterWorkspace
@@ -13,29 +14,36 @@ class ProvisionStarterWorkspace
     {
         $user = $event->user;
 
-        $team = Team::create([
-            'owner_id'    => $user->id,
-            'name'        => "{$user->name}'s Workspace",
-            'slug'        => Str::slug($user->name) . '-' . Str::random(5),
-            'description' => 'Your personal workspace. Invite teammates to collaborate.',
-        ]);
+        // Idempotency guard — skip if the user already owns a team (queue retry safety)
+        if (Team::where('owner_id', $user->id)->exists()) {
+            return;
+        }
 
-        $team->members()->attach($user->id, [
-            'role'      => 'owner',
-            'joined_at' => now(),
-        ]);
+        DB::transaction(function () use ($user) {
+            $team = Team::create([
+                'owner_id'    => $user->id,
+                'name'        => "{$user->name}'s Workspace",
+                'slug'        => Str::slug($user->name) . '-' . Str::random(5),
+                'description' => 'Your personal workspace. Invite teammates to collaborate.',
+            ]);
 
-        $project = Project::create([
-            'team_id'     => $team->id,
-            'owner_id'    => $user->id,
-            'name'        => 'Getting Started',
-            'description' => 'A sample project to help you explore the platform.',
-            'status'      => 'active',
-        ]);
+            $team->members()->attach($user->id, [
+                'role'      => 'owner',
+                'joined_at' => now(),
+            ]);
 
-        $project->members()->attach($user->id, [
-            'role'      => 'manager',
-            'joined_at' => now(),
-        ]);
+            $project = Project::create([
+                'team_id'     => $team->id,
+                'owner_id'    => $user->id,
+                'name'        => 'Getting Started',
+                'description' => 'A sample project to help you explore the platform.',
+                'status'      => 'active',
+            ]);
+
+            $project->members()->attach($user->id, [
+                'role'      => 'manager',
+                'joined_at' => now(),
+            ]);
+        });
     }
 }
