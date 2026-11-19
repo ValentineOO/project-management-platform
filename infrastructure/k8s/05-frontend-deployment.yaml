@@ -1,0 +1,65 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: frontend
+  namespace: codefyve
+  labels:
+    app.kubernetes.io/name: codefyve
+    app.kubernetes.io/component: frontend
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app.kubernetes.io/component: frontend
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: codefyve
+        app.kubernetes.io/component: frontend
+    spec:
+      containers:
+        - name: frontend
+          image: codefyve/frontend:latest
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 3000
+
+          env:
+            # API_URL is used by Next.js server-side code — internal cluster address is correct here
+            - name: API_URL
+              valueFrom:
+                secretKeyRef:
+                  name: app-secret
+                  key: API_URL
+            - name: NEXT_PUBLIC_APP_NAME
+              valueFrom:
+                configMapKeyRef:
+                  name: app-config
+                  key: NEXT_PUBLIC_APP_NAME
+            # NEXT_PUBLIC_API_URL is intentionally absent — it must be supplied
+            # as a Docker build arg (--build-arg) at image build time in CI,
+            # not injected at runtime. Next.js bakes NEXT_PUBLIC_* into the bundle.
+
+          readinessProbe:
+            httpGet:
+              path: /
+              port: 3000
+            initialDelaySeconds: 15
+            periodSeconds: 10
+            failureThreshold: 3
+
+          livenessProbe:
+            httpGet:
+              path: /
+              port: 3000
+            initialDelaySeconds: 30
+            periodSeconds: 20
+            failureThreshold: 3
+
+          resources:
+            requests:
+              cpu: "100m"
+              memory: "128Mi"
+            limits:
+              cpu: "500m"
+              memory: "512Mi"

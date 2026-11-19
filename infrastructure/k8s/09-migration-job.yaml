@@ -1,0 +1,36 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: db-migrate
+  namespace: codefyve
+  labels:
+    app.kubernetes.io/name: codefyve
+    app.kubernetes.io/component: migration
+spec:
+  ttlSecondsAfterFinished: 300
+  backoffLimit: 3
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/component: migration
+    spec:
+      restartPolicy: OnFailure
+      containers:
+        - name: migrate
+          image: codefyve/backend:latest
+          imagePullPolicy: IfNotPresent
+          command: ["php", "artisan", "migrate", "--force"]
+
+          envFrom:
+            - configMapRef:
+                name: app-config
+            - secretRef:
+                name: app-secret
+
+          resources:
+            requests:
+              cpu: "100m"
+              memory: "128Mi"
+            limits:
+              cpu: "250m"
+              memory: "256Mi"

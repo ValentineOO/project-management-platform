@@ -1,0 +1,43 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: worker
+  namespace: codefyve
+  labels:
+    app.kubernetes.io/name: codefyve
+    app.kubernetes.io/component: worker
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/component: worker
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: codefyve
+        app.kubernetes.io/component: worker
+    spec:
+      # Allow in-flight jobs up to the worker timeout to finish before SIGKILL
+      terminationGracePeriodSeconds: 120
+      containers:
+        - name: worker
+          image: codefyve/backend:latest
+          imagePullPolicy: IfNotPresent
+          command: ["php", "artisan", "queue:work", "--sleep=3", "--tries=3", "--timeout=90"]
+
+          envFrom:
+            - configMapRef:
+                name: app-config
+            - secretRef:
+                name: app-secret
+
+          # No probes — the worker has no HTTP port. If the process exits,
+          # Kubernetes restarts the container via the Deployment restart policy.
+
+          resources:
+            requests:
+              cpu: "100m"
+              memory: "128Mi"
+            limits:
+              cpu: "250m"
+              memory: "256Mi"
