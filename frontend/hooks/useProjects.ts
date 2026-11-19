@@ -47,7 +47,26 @@ export function useProjects() {
     }
   }, [])
 
-  useEffect(() => { load() }, [load])
+  useEffect(() => {
+    fetchTeams()
+      .then((loadedTeams) =>
+        Promise.all(
+          loadedTeams.map((t) =>
+            fetchTeamProjects(t.id).then((ps) =>
+              ps.map((p) => ({ ...p, team: { id: t.id, name: t.name } })),
+            ),
+          ),
+        ).then((perTeam) => {
+          const projects = perTeam.flat()
+          cache = { projects, teams: loadedTeams }
+          setTeams(loadedTeams)
+          setProjects(projects)
+          setError(null)
+        }),
+      )
+      .catch(() => setError('Failed to load projects.'))
+      .finally(() => setLoading(false))
+  }, [])
 
   const createProject = useCallback(
     async (teamId: number, name: string, description?: string) => {

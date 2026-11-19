@@ -39,10 +39,18 @@ export function useTasks(projectId: number, filters: TaskFilters = {}) {
     } catch {
       setError('Failed to load tasks.')
     }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [projectId, filtersKey])
 
-  useEffect(() => { load() }, [load])
+  useEffect(() => {
+    fetchProjectTasks(projectId, undefined, JSON.parse(filtersKey) as TaskFilters)
+      .then((page) => {
+        setTasks(page.data)
+        setNextCursor(page.next_cursor ?? null)
+        setError(null)
+        setLoadedKey(`${projectId}:${filtersKey}`)
+      })
+      .catch(() => setError('Failed to load tasks.'))
+  }, [projectId, filtersKey])
 
   const loadMore = useCallback(async () => {
     if (!nextCursor || loadingMore) return
@@ -54,7 +62,6 @@ export function useTasks(projectId: number, filters: TaskFilters = {}) {
     } finally {
       setLoadingMore(false)
     }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [projectId, nextCursor, loadingMore, filtersKey])
 
   const createTask = useCallback(

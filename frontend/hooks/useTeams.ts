@@ -14,20 +14,12 @@ export function useTeams() {
   const [loading, setLoading] = useState(teamsCache === null)
   const [error, setError] = useState<string | null>(null)
 
-  const load = useCallback(async () => {
-    try {
-      const data = await fetchTeams()
-      teamsCache = data
-      setTeams(data)
-      setError(null)
-    } catch {
-      setError('Failed to load teams.')
-    } finally {
-      setLoading(false)
-    }
+  useEffect(() => {
+    fetchTeams()
+      .then((data) => { teamsCache = data; setTeams(data); setError(null) })
+      .catch(() => setError('Failed to load teams.'))
+      .finally(() => setLoading(false))
   }, [])
-
-  useEffect(() => { load() }, [load])
 
   const createTeam = useCallback(async (name: string, description?: string) => {
     try {

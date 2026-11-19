@@ -21,7 +21,7 @@ FROM base AS builder
 ARG NEXT_PUBLIC_API_URL
 ENV NEXT_PUBLIC_API_URL=$NEXT_PUBLIC_API_URL
 
-COPY package*.json ./
+COPY package*.json .npmrc* ./
 RUN npm ci
 
 COPY . .
