@@ -9,6 +9,7 @@ use Database\Seeders\Demo\TaskTableSeeder;
 use Database\Seeders\Demo\TeamTableSeeder;
 use Database\Seeders\Demo\UserTableSeeder;
 use Illuminate\Database\Seeder;
+use Illuminate\Support\Facades\DB;
 
 class DemoSeeder extends Seeder
 {
@@ -36,6 +37,13 @@ class DemoSeeder extends Seeder
             . number_format($logCount) . ' activity logs, '
             . count($users) . ' users across ' . DemoData::TEAMS . ' teams.'
         );
+        $this->command->info('  → Resetting sequences…');
+        foreach (['users', 'teams', 'projects', 'tasks', 'activity_logs'] as $table) {
+            DB::statement(
+                "SELECT setval(pg_get_serial_sequence('{$table}', 'id'), COALESCE((SELECT MAX(id) FROM {$table}), 0) + 1, false)"
+            );
+        }
+
         $this->command->info('');
         $this->command->info('  Demo login:  demo@codefyve.test  /  password');
     }

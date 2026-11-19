@@ -113,10 +113,11 @@ export function DatePicker({
             autoFocus
             classNames={{
               root: 'w-fit',
-              months: 'flex gap-4',
-              month_caption: 'flex items-center justify-between mb-2 px-1',
+              months: 'relative flex gap-4',
+              month: 'flex flex-col',
+              month_caption: 'flex items-center justify-center h-7 mb-2',
               caption_label: 'text-sm font-medium',
-              nav: 'flex items-center gap-1',
+              nav: 'absolute top-0 left-0 right-0 h-7 flex items-center justify-between',
               button_previous: cn(
                 'inline-flex h-6 w-6 items-center justify-center rounded-md border border-input',
                 'text-muted-foreground hover:bg-muted hover:text-foreground transition-colors',
