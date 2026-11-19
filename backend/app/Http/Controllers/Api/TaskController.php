@@ -9,6 +9,7 @@ use App\Http\Requests\Task\UpdateTaskRequest;
 use App\Models\ActivityLog;
 use App\Models\Project;
 use App\Models\Task;
+use App\Services\DashboardService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -100,6 +101,12 @@ class TaskController extends Controller
                 'message' => 'Conflict: task was modified by another user. Reload and retry.',
                 'current' => $task->fresh(),
             ], 409);
+        }
+
+        $dash = app(DashboardService::class);
+        $dash->invalidate($request->user()->id);
+        if ($task->assignee_id && $task->assignee_id !== $request->user()->id) {
+            $dash->invalidate($task->assignee_id);
         }
 
         return response()->json(['task' => $task]);

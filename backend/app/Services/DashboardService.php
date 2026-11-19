@@ -44,12 +44,19 @@ class DashboardService
             ->groupBy('status')
             ->pluck('total', 'status');
 
+        $projectTasksByStatus = DB::table('tasks')
+            ->whereIn('project_id', $projectIds)
+            ->whereNull('deleted_at')
+            ->selectRaw('status, count(*) as total')
+            ->groupBy('status')
+            ->pluck('total', 'status');
+
         $overdueCount = DB::table('tasks')
-            ->where('assignee_id', $user->id)
+            ->whereIn('project_id', $projectIds)
             ->whereNull('deleted_at')
             ->whereNotIn('status', ['done'])
-            ->where('due_date', '<', now())
             ->whereNotNull('due_date')
+            ->whereDate('due_date', '<', now()->toDateString())
             ->count();
 
         $recentActivity = ActivityLog::with('causer:id,name')
@@ -69,6 +76,10 @@ class DashboardService
                 'assigned_to_me' => [
                     'total' => $tasksByStatus->sum(),
                     'by_status' => $tasksByStatus,
+                ],
+                'in_my_projects' => [
+                    'total' => $projectTasksByStatus->sum(),
+                    'by_status' => $projectTasksByStatus,
                 ],
                 'overdue' => $overdueCount,
             ],

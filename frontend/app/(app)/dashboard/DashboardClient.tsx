@@ -32,11 +32,11 @@ export function DashboardClient() {
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-4">
           <StatCard label="Projects" value={stats?.projects.total} />
           <StatCard label="Assigned tasks" value={stats?.tasks.assigned_to_me.total} />
-          <StatCard label="Completed" value={stats?.tasks.assigned_to_me.by_status['done']} />
+          <StatCard label="Completed" value={stats?.tasks.in_my_projects.by_status['done'] ?? 0} />
           <StatCard
             label="Overdue"
-            value={stats?.tasks.overdue}
-            highlight={!!stats?.tasks.overdue}
+            value={stats?.tasks.overdue ?? 0}
+            highlight={!!(stats?.tasks.overdue)}
           />
         </div>
       </section>

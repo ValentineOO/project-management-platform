@@ -66,6 +66,10 @@ export interface DashboardStats {
       total: number
       by_status: Record<string, number>
     }
+    in_my_projects: {
+      total: number
+      by_status: Record<string, number>
+    }
     overdue: number
   }
   recent_activity: ActivityLog[]
