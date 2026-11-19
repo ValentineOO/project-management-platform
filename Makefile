@@ -1,13 +1,18 @@
-.PHONY: help up down build logs ps test lint migrate seed fresh shell-backend shell-frontend deploy k8s-status setup
+.PHONY: help setup up down build logs ps \
+        migrate seed fresh \
+        test test-backend \
+        lint lint-backend lint-frontend \
+        shell-backend shell-frontend \
+        deploy k8s-migrate k8s-status
 
 help:
 	@echo ""
 	@echo "  Local development"
 	@echo "  ─────────────────────────────────────────"
-	@echo "  setup            Copy .env.example files and generate app key"
-	@echo "  up               Start all services (dev)"
+	@echo "  setup            Copy .env.example files and generate app key (safe to rerun)"
+	@echo "  up               Start all services"
 	@echo "  down             Stop and remove containers"
-	@echo "  build            Build all Docker images (no cache)"
+	@echo "  build            Build all Docker images"
 	@echo "  logs             Tail all container logs"
 	@echo "  ps               Show running containers"
 	@echo ""
@@ -15,12 +20,15 @@ help:
 	@echo "  ─────────────────────────────────────────"
 	@echo "  migrate          Run database migrations"
 	@echo "  seed             Seed the database"
-	@echo "  fresh            Drop, migrate and reseed (destructive)"
+	@echo "  fresh            ⚠ DESTRUCTIVE: drop, migrate and reseed"
 	@echo ""
 	@echo "  Quality"
 	@echo "  ─────────────────────────────────────────"
-	@echo "  test             Run backend and frontend test suites"
-	@echo "  lint             Run PHP Pint and ESLint"
+	@echo "  test             Run backend test suite"
+	@echo "  test-backend     Run PHP tests only"
+	@echo "  lint             Run all linters"
+	@echo "  lint-backend     Run PHP Pint"
+	@echo "  lint-frontend    Run ESLint"
 	@echo ""
 	@echo "  Shells"
 	@echo "  ─────────────────────────────────────────"
@@ -29,7 +37,8 @@ help:
 	@echo ""
 	@echo "  Kubernetes"
 	@echo "  ─────────────────────────────────────────"
-	@echo "  deploy           Apply all Kubernetes manifests"
+	@echo "  deploy           Apply manifests and wait for rollout"
+	@echo "  k8s-migrate      Run database migration Job in cluster"
 	@echo "  k8s-status       Show Kubernetes resource status"
 	@echo ""
 
@@ -38,7 +47,8 @@ help:
 setup:
 	@[ -f backend/.env ] || cp backend/.env.example backend/.env
 	@[ -f frontend/.env.local ] || cp frontend/.env.example frontend/.env.local
-	docker compose run --rm backend php artisan key:generate
+	@grep -q '^APP_KEY=base64:' backend/.env \
+		|| docker compose run --rm backend php artisan key:generate
 	@echo "Done. Edit backend/.env and frontend/.env.local before running 'make up'."
 
 # ── Local dev ─────────────────────────────────────────────────────────────────
@@ -52,7 +62,7 @@ down:
 	docker compose down
 
 build:
-	docker compose build --no-cache
+	docker compose build
 
 logs:
 	docker compose logs -f
@@ -73,12 +83,17 @@ fresh:
 
 # ── Quality ───────────────────────────────────────────────────────────────────
 
-test:
-	docker compose exec backend php artisan test
-	docker compose exec frontend npm run test
+test: test-backend
 
-lint:
+test-backend:
+	docker compose exec backend php artisan test
+
+lint: lint-backend lint-frontend
+
+lint-backend:
 	docker compose exec backend ./vendor/bin/pint --test
+
+lint-frontend:
 	docker compose exec frontend npm run lint
 
 # ── Shells ────────────────────────────────────────────────────────────────────
@@ -93,6 +108,12 @@ shell-frontend:
 
 deploy:
 	kubectl apply -f infrastructure/k8s/
+	kubectl rollout status deployment/backend -n codefyve
+	kubectl rollout status deployment/frontend -n codefyve
+
+k8s-migrate:
+	kubectl apply -f infrastructure/k8s/migration-job.yaml
+	kubectl wait --for=condition=complete job/db-migrate -n codefyve --timeout=120s
 
 k8s-status:
-	kubectl get all -n codefyve
+	kubectl get deployments,pods,services,ingress,hpa,jobs -n codefyve
