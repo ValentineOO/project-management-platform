@@ -30,6 +30,7 @@ class ProjectController extends Controller
         $project = $team->projects()->create([
             ...$request->validated(),
             'owner_id' => $request->user()->id,
+            'status'   => 'active',
         ]);
 
         $project->members()->attach($request->user()->id, ['role' => 'manager']);

@@ -58,16 +58,17 @@ export function useProjects() {
         const entry = { ...project, team: { id: team.id, name: team.name } }
         cache = cache
           ? { ...cache, projects: [entry, ...cache.projects] }
-          : null
+          : { projects: [entry], teams }
         setProjects((prev) => [entry, ...prev])
         toast.success('Project created')
+        load()
         return { ok: true as const }
       } catch (err) {
         toast.error('Failed to create project')
         return { ok: false as const, errors: extractApiErrors(err) }
       }
     },
-    [teams],
+    [teams, load],
   )
 
   return { projects, teams, loading, error, createProject, reload: load }

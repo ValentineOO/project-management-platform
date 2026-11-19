@@ -62,6 +62,21 @@ export function CreateProjectModal({ open, onClose, teams, onCreate }: CreatePro
 
         <form onSubmit={handleSubmit} noValidate className="space-y-4 mt-2">
           <div className="space-y-1.5">
+            <Label htmlFor={nameId}>
+              Name <span className="text-destructive" aria-hidden="true">*</span>
+            </Label>
+            <Input
+              id={nameId}
+              name="name"
+              placeholder="Project name"
+              required
+              aria-invalid={!!errors.name}
+              aria-describedby={errors.name ? `${nameId}-err` : undefined}
+            />
+            {errors.name && <p id={`${nameId}-err`} role="alert" className="text-xs text-destructive">{errors.name}</p>}
+          </div>
+
+          <div className="space-y-1.5">
             <Label htmlFor={teamSelectId}>
               Team <span className="text-destructive" aria-hidden="true">*</span>
             </Label>
@@ -78,21 +93,6 @@ export function CreateProjectModal({ open, onClose, teams, onCreate }: CreatePro
               </SelectContent>
             </Select>
             {errors.team_id && <p role="alert" className="text-xs text-destructive">{errors.team_id}</p>}
-          </div>
-
-          <div className="space-y-1.5">
-            <Label htmlFor={nameId}>
-              Name <span className="text-destructive" aria-hidden="true">*</span>
-            </Label>
-            <Input
-              id={nameId}
-              name="name"
-              placeholder="Project name"
-              required
-              aria-invalid={!!errors.name}
-              aria-describedby={errors.name ? `${nameId}-err` : undefined}
-            />
-            {errors.name && <p id={`${nameId}-err`} role="alert" className="text-xs text-destructive">{errors.name}</p>}
           </div>
 
           <div className="space-y-1.5">
