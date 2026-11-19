@@ -16,6 +16,11 @@ CMD ["npm", "run", "dev"]
 # ── Builder ───────────────────────────────────────────────────────────────────
 FROM base AS builder
 
+# Declared here so it's available during the Next.js build.
+# Pass via: docker build --build-arg NEXT_PUBLIC_API_URL=https://your-domain.com/api
+ARG NEXT_PUBLIC_API_URL
+ENV NEXT_PUBLIC_API_URL=$NEXT_PUBLIC_API_URL
+
 COPY package*.json ./
 RUN npm ci
 

@@ -19,6 +19,8 @@ spec:
     spec:
       containers:
         - name: frontend
+          # Replace with the GHCR image built by CI, e.g.:
+          # ghcr.io/<owner>/<repo>/frontend:<git-sha>
           image: codefyve/frontend:latest
           imagePullPolicy: IfNotPresent
           ports:
