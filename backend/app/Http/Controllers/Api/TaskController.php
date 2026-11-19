@@ -37,6 +37,7 @@ class TaskController extends Controller
         $task = $project->tasks()->create([
             ...$request->validated(),
             'reporter_id' => $request->user()->id,
+            'version'     => 1,
         ]);
 
         return response()->json(['task' => $task], 201);
@@ -97,6 +98,7 @@ class TaskController extends Controller
         } catch (TaskConflictException) {
             return response()->json([
                 'message' => 'Conflict: task was modified by another user. Reload and retry.',
+                'current' => $task->fresh(),
             ], 409);
         }
 
