@@ -10,7 +10,7 @@ class DemoData
     public const TASKS_PER_PROJECT = 500;
 
     public const STATUSES = ['todo', 'in_progress', 'in_review', 'done'];
-    public const PRIORITIES = ['low', 'medium', 'high', 'critical'];
+    public const PRIORITIES = ['low', 'medium', 'high', 'urgent'];
     public const STATUS_WEIGHTS = [40, 25, 15, 20];
     public const PRIORITY_WEIGHTS = [30, 35, 25, 10];
 
