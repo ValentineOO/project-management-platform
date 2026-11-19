@@ -81,7 +81,7 @@ export function CreateProjectModal({ open, onClose, teams, onCreate }: CreatePro
               Team <span className="text-destructive" aria-hidden="true">*</span>
             </Label>
             <Select value={selectedTeamId} onValueChange={(v) => v && setSelectedTeamId(v)}>
-              <SelectTrigger id={teamSelectId} aria-invalid={!!errors.team_id}>
+              <SelectTrigger id={teamSelectId} aria-invalid={!!errors.team_id} className="w-full">
                 <span className={selectedTeamName ? undefined : 'text-muted-foreground'}>
                   {selectedTeamName ?? 'Select a team'}
                 </span>

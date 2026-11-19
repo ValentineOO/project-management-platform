@@ -4,6 +4,7 @@ import { ArrowLeft, Plus, Pencil, Trash2 } from 'lucide-react'
 import Link from 'next/link'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
+import { cn, PROJECT_STATUS_COLORS, PROJECT_STATUS_LABELS } from '@/lib/utils'
 import type { Project } from '@/types'
 
 interface ProjectHeaderProps {
@@ -33,11 +34,8 @@ export function ProjectHeader({ project, onAddTask, onEdit, onDelete }: ProjectH
         </div>
         <div className="flex items-center gap-2 shrink-0">
           {project && (
-            <Badge
-              variant={project.status === 'active' ? 'default' : 'secondary'}
-              className="capitalize"
-            >
-              {project.status}
+            <Badge className={cn('text-xs font-medium border-0', PROJECT_STATUS_COLORS[project.status])}>
+              {PROJECT_STATUS_LABELS[project.status] ?? project.status}
             </Badge>
           )}
           {project && (

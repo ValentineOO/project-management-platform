@@ -71,5 +71,17 @@ export function useProjects() {
     [teams, load],
   )
 
-  return { projects, teams, loading, error, createProject, reload: load }
+  const removeProject = useCallback((projectId: number) => {
+    cache = cache ? { ...cache, projects: cache.projects.filter((p) => p.id !== projectId) } : null
+    setProjects((prev) => prev.filter((p) => p.id !== projectId))
+  }, [])
+
+  const updateCachedProject = useCallback((updated: ProjectWithTeam) => {
+    const patch = (ps: ProjectWithTeam[]) =>
+      ps.map((p) => (p.id === updated.id ? { ...p, ...updated } : p))
+    cache = cache ? { ...cache, projects: patch(cache.projects) } : null
+    setProjects((prev) => patch(prev))
+  }, [])
+
+  return { projects, teams, loading, error, createProject, removeProject, updateCachedProject, reload: load }
 }

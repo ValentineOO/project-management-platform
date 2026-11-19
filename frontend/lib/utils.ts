@@ -58,6 +58,25 @@ export const STATUS_COLORS: Record<TaskStatus, string> = {
   done: 'text-emerald-700 bg-emerald-100',
 }
 
+export const PROJECT_STATUS_COLORS: Record<string, string> = {
+  active: 'text-emerald-700 bg-emerald-100',
+  completed: 'text-blue-700 bg-blue-100',
+  archived: 'text-slate-600 bg-slate-100',
+}
+
+export const PROJECT_STATUS_LABELS: Record<string, string> = {
+  active: 'Active',
+  completed: 'Completed',
+  archived: 'Archived',
+}
+
+export const ROLE_COLORS: Record<string, string> = {
+  owner: 'text-amber-700 bg-amber-100',
+  admin: 'text-purple-700 bg-purple-100',
+  manager: 'text-blue-700 bg-blue-100',
+  member: 'text-slate-600 bg-slate-100',
+}
+
 export function extractApiErrors(err: unknown): Record<string, string> {
   if (
     err &&
@@ -67,10 +86,10 @@ export function extractApiErrors(err: unknown): Record<string, string> {
     typeof err.response === 'object' &&
     'data' in err.response
   ) {
-    const data = err.response.data as { errors?: Record<string, string[]>; message?: string }
+    const data = err.response.data as { errors?: Record<string, string | string[]>; message?: string }
     if (data.errors) {
       return Object.fromEntries(
-        Object.entries(data.errors).map(([k, v]) => [k, v[0]])
+        Object.entries(data.errors).map(([k, v]) => [k, Array.isArray(v) ? v[0] : v])
       )
     }
     if (data.message) return { _root: data.message }

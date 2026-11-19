@@ -2,15 +2,48 @@
 
 import { useState } from 'react'
 import { Plus } from 'lucide-react'
+import { toast } from 'sonner'
+import { useRouter } from 'next/navigation'
 import { Button } from '@/components/ui/button'
 import { ProjectCard } from '@/components/projects/ProjectCard'
 import { CreateProjectModal } from '@/components/projects/CreateProjectModal'
+import { EditProjectModal } from '@/components/projects/EditProjectModal'
 import { ProjectsSkeleton } from '@/components/projects/ProjectsSkeleton'
+import { ConfirmDialog } from '@/components/ui/confirm-dialog'
 import { useProjects } from '@/hooks/useProjects'
+import { deleteProject } from '@/services/projects'
+import type { ProjectWithTeam } from '@/hooks/useProjects'
+import type { Project } from '@/types'
 
 export function ProjectsClient() {
-  const { projects, teams, loading, error, createProject } = useProjects()
-  const [showModal, setShowModal] = useState(false)
+  const { projects, teams, loading, error, createProject, removeProject, updateCachedProject } = useProjects()
+  const router = useRouter()
+
+  const [showCreate, setShowCreate] = useState(false)
+  const [editingProject, setEditingProject] = useState<ProjectWithTeam | null>(null)
+  const [deletingProject, setDeletingProject] = useState<ProjectWithTeam | null>(null)
+  const [deleteLoading, setDeleteLoading] = useState(false)
+
+  async function handleDelete() {
+    if (!deletingProject) return
+    setDeleteLoading(true)
+    try {
+      await deleteProject(deletingProject.id)
+      removeProject(deletingProject.id)
+      toast.success('Project deleted')
+      setDeletingProject(null)
+    } catch {
+      toast.error('Failed to delete project')
+    } finally {
+      setDeleteLoading(false)
+    }
+  }
+
+  function handleProjectUpdated(updated: Project) {
+    updateCachedProject({ ...updated, team: editingProject!.team })
+    setEditingProject(null)
+    toast.success('Project updated')
+  }
 
   return (
     <div className="space-y-6">
@@ -20,7 +53,7 @@ export function ProjectsClient() {
           <p className="text-sm text-muted-foreground">All projects across your teams.</p>
         </div>
         <Button
-          onClick={() => setShowModal(true)}
+          onClick={() => setShowCreate(true)}
           disabled={teams.length === 0}
           aria-label="Create new project"
         >
@@ -37,7 +70,7 @@ export function ProjectsClient() {
         <div className="rounded-lg border border-dashed p-12 text-center">
           <p className="text-sm text-muted-foreground">No projects yet.</p>
           {teams.length > 0 && (
-            <Button variant="outline" className="mt-4" onClick={() => setShowModal(true)}>
+            <Button variant="outline" className="mt-4" onClick={() => setShowCreate(true)}>
               Create your first project
             </Button>
           )}
@@ -54,17 +87,41 @@ export function ProjectsClient() {
         >
           {projects.map((project) => (
             <li key={project.id}>
-              <ProjectCard project={project} />
+              <ProjectCard
+                project={project}
+                onEdit={() => setEditingProject(project)}
+                onDelete={() => setDeletingProject(project)}
+              />
             </li>
           ))}
         </ul>
       )}
 
       <CreateProjectModal
-        open={showModal}
-        onClose={() => setShowModal(false)}
+        open={showCreate}
+        onClose={() => setShowCreate(false)}
         teams={teams}
         onCreate={createProject}
+      />
+
+      {editingProject && (
+        <EditProjectModal
+          open
+          project={editingProject}
+          onClose={() => setEditingProject(null)}
+          onUpdated={handleProjectUpdated}
+        />
+      )}
+
+      <ConfirmDialog
+        open={deletingProject !== null}
+        title="Delete project"
+        description={`Delete "${deletingProject?.name}"? All tasks will be permanently removed.`}
+        confirmLabel="Delete project"
+        destructive
+        loading={deleteLoading}
+        onConfirm={handleDelete}
+        onCancel={() => setDeletingProject(null)}
       />
     </div>
   )

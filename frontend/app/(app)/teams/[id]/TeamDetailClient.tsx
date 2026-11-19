@@ -17,7 +17,7 @@ import { useTeam } from '@/hooks/useTeam'
 import { useProjects } from '@/hooks/useProjects'
 import { ProjectCard } from '@/components/projects/ProjectCard'
 import { updateTeam, deleteTeam, addTeamMember, removeTeamMember } from '@/services/teams'
-import { extractApiErrors, cn } from '@/lib/utils'
+import { extractApiErrors, cn, ROLE_COLORS } from '@/lib/utils'
 import type { Team } from '@/types'
 
 interface TeamDetailClientProps {
@@ -154,7 +154,7 @@ export function TeamDetailClient({ teamId }: TeamDetailClientProps) {
                     <p className="text-xs text-muted-foreground truncate">{m.email}</p>
                   </div>
                   <div className="flex items-center gap-2 shrink-0">
-                    <Badge variant="secondary" className={cn('text-xs capitalize', m.pivot.role === 'owner' && 'bg-amber-100 text-amber-800')}>
+                    <Badge className={cn('text-xs font-medium border-0 capitalize', ROLE_COLORS[m.pivot.role] ?? 'text-slate-600 bg-slate-100')}>
                       {ROLE_LABEL[m.pivot.role] ?? m.pivot.role}
                     </Badge>
                     {m.pivot.role !== 'owner' && (
