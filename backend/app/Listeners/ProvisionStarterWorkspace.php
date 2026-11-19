@@ -4,6 +4,7 @@ namespace App\Listeners;
 
 use App\Models\Project;
 use App\Models\Team;
+use App\Models\User;
 use Illuminate\Auth\Events\Registered;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
@@ -12,14 +13,17 @@ class ProvisionStarterWorkspace
 {
     public function handle(Registered $event): void
     {
-        $user = $event->user;
-
-        // Idempotency guard — skip if the user already owns a team (queue retry safety)
-        if (Team::where('owner_id', $user->id)->exists()) {
+        if (Team::where('owner_id', $event->user->id)->exists()) {
             return;
         }
 
-        DB::transaction(function () use ($user) {
+        DB::transaction(function () use ($event) {
+            $user = User::lockForUpdate()->findOrFail($event->user->id);
+
+            if (Team::where('owner_id', $user->id)->exists()) {
+                return;
+            }
+
             $team = Team::create([
                 'owner_id'    => $user->id,
                 'name'        => "{$user->name}'s Workspace",
@@ -27,10 +31,7 @@ class ProvisionStarterWorkspace
                 'description' => 'Your personal workspace. Invite teammates to collaborate.',
             ]);
 
-            $team->members()->attach($user->id, [
-                'role'      => 'owner',
-                'joined_at' => now(),
-            ]);
+            $team->members()->attach($user->id, ['role' => 'owner', 'joined_at' => now()]);
 
             $project = Project::create([
                 'team_id'     => $team->id,
@@ -40,10 +41,7 @@ class ProvisionStarterWorkspace
                 'status'      => 'active',
             ]);
 
-            $project->members()->attach($user->id, [
-                'role'      => 'manager',
-                'joined_at' => now(),
-            ]);
+            $project->members()->attach($user->id, ['role' => 'manager', 'joined_at' => now()]);
         });
     }
 }
