@@ -31,7 +31,7 @@ export function DatePicker({
     : undefined
   const validSelected = selected && isValid(selected) ? selected : undefined
 
-  // Close on outside click
+  // Close on outside click or Escape
   useEffect(() => {
     if (!open) return
     function onPointerDown(e: PointerEvent) {
@@ -39,8 +39,17 @@ export function DatePicker({
         setOpen(false)
       }
     }
+    function onKeyDown(e: KeyboardEvent) {
+      if (e.key === 'Escape') {
+        setOpen(false)
+      }
+    }
     document.addEventListener('pointerdown', onPointerDown)
-    return () => document.removeEventListener('pointerdown', onPointerDown)
+    document.addEventListener('keydown', onKeyDown)
+    return () => {
+      document.removeEventListener('pointerdown', onPointerDown)
+      document.removeEventListener('keydown', onKeyDown)
+    }
   }, [open])
 
   function handleSelect(date: Date | undefined) {
@@ -76,14 +85,14 @@ export function DatePicker({
           </span>
         </span>
         {validSelected && !disabled && (
-          <span
-            role="button"
+          <button
+            type="button"
             aria-label="Clear date"
             onClick={handleClear}
-            className="rounded p-0.5 hover:bg-muted text-muted-foreground hover:text-foreground"
+            className="rounded p-0.5 hover:bg-muted text-muted-foreground hover:text-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
           >
             <X size={12} />
-          </span>
+          </button>
         )}
       </button>
 
@@ -101,6 +110,7 @@ export function DatePicker({
             selected={validSelected}
             onSelect={handleSelect}
             defaultMonth={validSelected ?? new Date()}
+            autoFocus
             classNames={{
               root: 'w-fit',
               months: 'flex gap-4',
