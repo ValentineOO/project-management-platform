@@ -6,7 +6,7 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
+import { Select, SelectContent, SelectItem, SelectTrigger } from '@/components/ui/select'
 import type { Team } from '@/types'
 
 interface CreateProjectModalProps {
@@ -19,16 +19,19 @@ interface CreateProjectModalProps {
 export function CreateProjectModal({ open, onClose, teams, onCreate }: CreateProjectModalProps) {
   const nameId = useId()
   const descId = useId()
-  const teamId = useId()
+  const teamSelectId = useId()
+  const [selectedTeamId, setSelectedTeamId] = useState('')
   const [loading, setLoading] = useState(false)
   const [errors, setErrors] = useState<Record<string, string>>({})
+
+  const selectedTeamName = teams.find((t) => String(t.id) === selectedTeamId)?.name
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault()
     const fd = new FormData(e.currentTarget)
     const name = fd.get('name') as string
     const description = fd.get('description') as string
-    const team = Number(fd.get('team_id'))
+    const team = Number(selectedTeamId)
 
     setLoading(true)
     setErrors({})
@@ -36,14 +39,21 @@ export function CreateProjectModal({ open, onClose, teams, onCreate }: CreatePro
     setLoading(false)
 
     if (result.ok) {
+      setSelectedTeamId('')
       onClose()
     } else {
       setErrors(result.errors ?? {})
     }
   }
 
+  function handleClose() {
+    setSelectedTeamId('')
+    setErrors({})
+    onClose()
+  }
+
   return (
-    <Dialog open={open} onOpenChange={(open) => !open && onClose()}>
+    <Dialog open={open} onOpenChange={(open) => !open && handleClose()}>
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
           <DialogTitle>New project</DialogTitle>
@@ -52,12 +62,14 @@ export function CreateProjectModal({ open, onClose, teams, onCreate }: CreatePro
 
         <form onSubmit={handleSubmit} noValidate className="space-y-4 mt-2">
           <div className="space-y-1.5">
-            <Label htmlFor={teamId}>
+            <Label htmlFor={teamSelectId}>
               Team <span className="text-destructive" aria-hidden="true">*</span>
             </Label>
-            <Select name="team_id" required>
-              <SelectTrigger id={teamId} aria-invalid={!!errors.team_id}>
-                <SelectValue placeholder="Select a team" />
+            <Select value={selectedTeamId} onValueChange={(v) => v && setSelectedTeamId(v)}>
+              <SelectTrigger id={teamSelectId} aria-invalid={!!errors.team_id}>
+                <span className={selectedTeamName ? undefined : 'text-muted-foreground'}>
+                  {selectedTeamName ?? 'Select a team'}
+                </span>
               </SelectTrigger>
               <SelectContent>
                 {teams.map((t) => (
@@ -96,7 +108,7 @@ export function CreateProjectModal({ open, onClose, teams, onCreate }: CreatePro
           {errors._root && <p role="alert" className="text-sm text-destructive">{errors._root}</p>}
 
           <div className="flex justify-end gap-2 pt-1">
-            <Button type="button" variant="outline" onClick={onClose} disabled={loading}>
+            <Button type="button" variant="outline" onClick={handleClose} disabled={loading}>
               Cancel
             </Button>
             <Button type="submit" disabled={loading} aria-busy={loading}>
