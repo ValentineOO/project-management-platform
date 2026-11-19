@@ -12,7 +12,6 @@ import { TeamMemberList } from '@/components/teams/TeamMemberList'
 import { ProjectCard } from '@/components/projects/ProjectCard'
 import { useTeam } from '@/hooks/useTeam'
 import { useProjects } from '@/hooks/useProjects'
-import type { TeamMember } from '@/hooks/useTeam'
 
 interface TeamDetailClientProps {
   teamId: number

@@ -17,11 +17,13 @@ export function useProject(projectId: number) {
   const [project, setProject] = useState<Project | null>(hit?.project ?? null)
   const [members, setMembers] = useState<Pick<User, 'id' | 'name'>[]>(hit?.members ?? [])
   const [taskStats, setTaskStats] = useState<Record<string, number>>(hit?.taskStats ?? {})
-  const [loading, setLoading] = useState(!hit)
+  // Derived: loading is true until we have data for the requested projectId
+  const [loadedId, setLoadedId] = useState<number | null>(hit ? projectId : null)
   const [error, setError] = useState<string | null>(null)
 
+  const loading = loadedId !== projectId
+
   useEffect(() => {
-    if (!cache.has(projectId)) setLoading(true)
     fetchProject(projectId)
       .then(({ project, members, task_stats }) => {
         const entry: ProjectCache = {
@@ -33,9 +35,9 @@ export function useProject(projectId: number) {
         setProject(entry.project)
         setMembers(entry.members)
         setTaskStats(entry.taskStats)
+        setLoadedId(projectId)
       })
       .catch(() => setError('Failed to load project.'))
-      .finally(() => setLoading(false))
   }, [projectId])
 
   function updateCachedProject(updated: Project) {

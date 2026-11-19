@@ -50,6 +50,7 @@ api.interceptors.response.use(
       const url: string = error.config?.url ?? ''
       const isAuthEndpoint = url.includes('/auth/')
       if (!isAuthEndpoint && typeof window !== 'undefined') {
+        // eslint-disable-next-line @next/next/no-location-assign-relative-destination
         window.location.href = '/login'
       }
     }

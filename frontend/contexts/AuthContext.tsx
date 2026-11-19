@@ -29,8 +29,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }, [])
 
   useEffect(() => {
-    refresh()
-  }, [refresh])
+    fetchUser()
+      .then((user) => setState({ user, status: 'authenticated' }))
+      .catch(() => setState({ user: null, status: 'unauthenticated' }))
+  }, [])
 
   const setUser = useCallback((user: User | null) => {
     setState({ user, status: user ? 'authenticated' : 'unauthenticated' })

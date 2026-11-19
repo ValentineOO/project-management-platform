@@ -1,6 +1,6 @@
 .PHONY: help setup up down build logs ps \
         migrate seed fresh \
-        test test-backend \
+        test test-backend test-frontend \
         lint lint-backend lint-frontend \
         shell-backend shell-frontend \
         deploy k8s-migrate k8s-status
@@ -24,8 +24,9 @@ help:
 	@echo ""
 	@echo "  Quality"
 	@echo "  ─────────────────────────────────────────"
-	@echo "  test             Run backend test suite"
+	@echo "  test             Run backend and frontend test suites"
 	@echo "  test-backend     Run PHP tests only"
+	@echo "  test-frontend    Run Vitest suite only"
 	@echo "  lint             Run all linters"
 	@echo "  lint-backend     Run PHP Pint"
 	@echo "  lint-frontend    Run ESLint"
@@ -83,10 +84,13 @@ fresh:
 
 # ── Quality ───────────────────────────────────────────────────────────────────
 
-test: test-backend
+test: test-backend test-frontend
 
 test-backend:
 	docker compose exec backend php artisan test
+
+test-frontend:
+	docker compose exec frontend npm run test
 
 lint: lint-backend lint-frontend
 

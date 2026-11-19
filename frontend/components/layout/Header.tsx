@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react'
 import { LogOut, Search, User as UserIcon } from 'lucide-react'
+import { useRouter } from 'next/navigation'
 import { Button } from '@/components/ui/button'
 import {
   DropdownMenu,
@@ -27,6 +28,7 @@ function getInitials(name: string): string {
 
 export function Header() {
   const { user, logout } = useAuth()
+  const router = useRouter()
   const [searchOpen, setSearchOpen] = useState(false)
 
   useEffect(() => {
@@ -84,7 +86,7 @@ export function Header() {
             <DropdownMenuSeparator />
 
             <DropdownMenuGroup>
-              <DropdownMenuItem className="gap-2">
+              <DropdownMenuItem className="gap-2" onClick={() => router.push('/profile')}>
                 <UserIcon size={14} aria-hidden="true" />
                 Profile
               </DropdownMenuItem>

@@ -15,15 +15,16 @@ export interface TeamDetail extends Team {
 
 export function useTeam(teamId: number) {
   const [team, setTeam] = useState<TeamDetail | null>(null)
-  const [loading, setLoading] = useState(true)
+  const [loadedId, setLoadedId] = useState<number | null>(null)
   const [error, setError] = useState<string | null>(null)
 
+  // Derived: true whenever the loaded data doesn't match the requested teamId
+  const loading = loadedId !== teamId
+
   useEffect(() => {
-    setLoading(true)
     api.get<{ team: TeamDetail }>(`/api/teams/${teamId}`)
-      .then(({ data }) => setTeam(data.team))
+      .then(({ data }) => { setTeam(data.team); setLoadedId(teamId) })
       .catch(() => setError('Failed to load team.'))
-      .finally(() => setLoading(false))
   }, [teamId])
 
   return { team, loading, error, setTeam }

@@ -15,12 +15,11 @@ export function useTeams() {
   const [error, setError] = useState<string | null>(null)
 
   const load = useCallback(async () => {
-    if (teamsCache === null) setLoading(true)
-    setError(null)
     try {
       const data = await fetchTeams()
       teamsCache = data
       setTeams(data)
+      setError(null)
     } catch {
       setError('Failed to load teams.')
     } finally {

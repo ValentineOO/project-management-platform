@@ -26,8 +26,6 @@ export function useProjects() {
   const [error, setError] = useState<string | null>(null)
 
   const load = useCallback(async () => {
-    if (cache === null) setLoading(true)
-    setError(null)
     try {
       const teams = await fetchTeams()
       const perTeam = await Promise.all(
@@ -41,6 +39,7 @@ export function useProjects() {
       cache = { projects, teams }
       setTeams(teams)
       setProjects(projects)
+      setError(null)
     } catch {
       setError('Failed to load projects.')
     } finally {

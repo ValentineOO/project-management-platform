@@ -1,6 +1,6 @@
 'use client'
 
-import { useCallback, useEffect, useRef, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import { toast } from 'sonner'
 import {
   fetchProjectTasks,
@@ -19,25 +19,25 @@ export interface TaskConflict {
 export function useTasks(projectId: number, filters: TaskFilters = {}) {
   const [tasks, setTasks] = useState<Task[]>([])
   const [nextCursor, setNextCursor] = useState<string | null>(null)
-  const [loading, setLoading] = useState(true)
   const [loadingMore, setLoadingMore] = useState(false)
   const [error, setError] = useState<string | null>(null)
-  const projectIdRef = useRef(projectId)
-  projectIdRef.current = projectId
 
   const filtersKey = JSON.stringify(filters)
+  const requestKey = `${projectId}:${filtersKey}`
+
+  // Derived: true whenever we haven't yet loaded data for the current projectId+filters
+  const [loadedKey, setLoadedKey] = useState<string | null>(null)
+  const loading = loadedKey !== requestKey
 
   const load = useCallback(async () => {
-    setLoading(true)
-    setError(null)
     try {
-      const page = await fetchProjectTasks(projectId, undefined, filters)
+      const page = await fetchProjectTasks(projectId, undefined, JSON.parse(filtersKey) as TaskFilters)
       setTasks(page.data)
       setNextCursor(page.next_cursor ?? null)
+      setError(null)
+      setLoadedKey(`${projectId}:${filtersKey}`)
     } catch {
       setError('Failed to load tasks.')
-    } finally {
-      setLoading(false)
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [projectId, filtersKey])
@@ -48,7 +48,7 @@ export function useTasks(projectId: number, filters: TaskFilters = {}) {
     if (!nextCursor || loadingMore) return
     setLoadingMore(true)
     try {
-      const page = await fetchProjectTasks(projectId, nextCursor, filters)
+      const page = await fetchProjectTasks(projectId, nextCursor, JSON.parse(filtersKey) as TaskFilters)
       setTasks((prev) => [...prev, ...page.data])
       setNextCursor(page.next_cursor ?? null)
     } finally {

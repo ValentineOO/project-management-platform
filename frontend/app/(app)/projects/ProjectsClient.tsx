@@ -3,7 +3,6 @@
 import { useState } from 'react'
 import { Plus } from 'lucide-react'
 import { toast } from 'sonner'
-import { useRouter } from 'next/navigation'
 import { Button } from '@/components/ui/button'
 import { ProjectCard } from '@/components/projects/ProjectCard'
 import { CreateProjectModal } from '@/components/projects/CreateProjectModal'
@@ -16,7 +15,6 @@ import type { ProjectWithTeam } from '@/hooks/useProjects'
 
 export function ProjectsClient() {
   const { projects, teams, loading, error, createProject, removeProject, updateCachedProject } = useProjects()
-  const router = useRouter()
 
   const [showCreate, setShowCreate] = useState(false)
   const [editingProject, setEditingProject] = useState<ProjectWithTeam | null>(null)
