@@ -8,10 +8,17 @@ metadata:
   annotations:
     nginx.ingress.kubernetes.io/proxy-body-size: "10m"
     nginx.ingress.kubernetes.io/proxy-read-timeout: "60"
+    # Uncomment to provision a TLS cert via cert-manager:
+    # cert-manager.io/cluster-issuer: "letsencrypt-prod"
 spec:
   ingressClassName: nginx
+  # tls:
+  #   - hosts:
+  #       - REPLACE_WITH_YOUR_DOMAIN
+  #     secretName: codefyve-tls
   rules:
-    - http:
+    - host: REPLACE_WITH_YOUR_DOMAIN
+      http:
         paths:
           - path: /api
             pathType: Prefix

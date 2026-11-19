@@ -93,8 +93,8 @@ Stateful domain configuration in `config/sanctum.php`:
 ```
 
 Frontend SPA auth flow:
-1. `GET /sanctum/csrf-cookie` — sets XSRF-TOKEN cookie (readable by JS)
-2. `POST /api/auth/login` with `X-XSRF-TOKEN` header — sets httpOnly session cookie
+1. `GET /sanctum/csrf-cookie` : sets XSRF-TOKEN cookie (readable by JS)
+2. `POST /api/auth/login` with `X-XSRF-TOKEN` header : sets httpOnly session cookie
 3. All subsequent requests carry both cookies automatically
 
 Production requirements: cookie domain, SameSite policy, Secure flag, and CORS

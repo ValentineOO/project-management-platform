@@ -107,7 +107,7 @@ export function TaskForm({
         <div className="space-y-1.5">
           <Label>Status</Label>
           <Select value={status} onValueChange={(v) => v && setStatus(v)}>
-            <SelectTrigger aria-label="Status">
+            <SelectTrigger aria-label="Status" className="w-full">
               <span>{STATUS_LABELS[status as TaskStatus] ?? status}</span>
             </SelectTrigger>
             <SelectContent>
@@ -121,7 +121,7 @@ export function TaskForm({
         <div className="space-y-1.5">
           <Label>Priority</Label>
           <Select value={priority} onValueChange={(v) => v && setPriority(v)}>
-            <SelectTrigger aria-label="Priority">
+            <SelectTrigger aria-label="Priority" className="w-full">
               <span>{PRIORITY_LABELS[priority as TaskPriority] ?? priority}</span>
             </SelectTrigger>
             <SelectContent>
@@ -133,33 +133,46 @@ export function TaskForm({
         </div>
       </div>
 
-      {members.length > 0 && (
+      {members.length > 0 ? (
+        <div className="grid grid-cols-2 gap-4">
+          <div className="space-y-1.5">
+            <Label>Assignee</Label>
+            <Select value={assigneeId} onValueChange={(v) => setAssigneeId(v ?? '')}>
+              <SelectTrigger aria-label="Assignee" className="w-full">
+                <span>{assigneeName}</span>
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="">Unassigned</SelectItem>
+                {members.map((m) => (
+                  <SelectItem key={m.id} value={String(m.id)}>{m.name}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+
+          <div className="space-y-1.5">
+            <Label htmlFor={dueDateId}>Due date</Label>
+            <DatePicker
+              id={dueDateId}
+              value={dueDate}
+              onChange={setDueDate}
+              placeholder="No due date"
+              disabled={submitting || disabled}
+            />
+          </div>
+        </div>
+      ) : (
         <div className="space-y-1.5">
-          <Label>Assignee</Label>
-          <Select value={assigneeId} onValueChange={(v) => setAssigneeId(v ?? '')}>
-            <SelectTrigger aria-label="Assignee">
-              <span>{assigneeName}</span>
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="">Unassigned</SelectItem>
-              {members.map((m) => (
-                <SelectItem key={m.id} value={String(m.id)}>{m.name}</SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
+          <Label htmlFor={dueDateId}>Due date</Label>
+          <DatePicker
+            id={dueDateId}
+            value={dueDate}
+            onChange={setDueDate}
+            placeholder="No due date"
+            disabled={submitting || disabled}
+          />
         </div>
       )}
-
-      <div className="space-y-1.5">
-        <Label htmlFor={dueDateId}>Due date</Label>
-        <DatePicker
-          id={dueDateId}
-          value={dueDate}
-          onChange={setDueDate}
-          placeholder="No due date"
-          disabled={submitting || disabled}
-        />
-      </div>
 
       {errors._root && (
         <p role="alert" className="text-sm text-destructive">{errors._root}</p>

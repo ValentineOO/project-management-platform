@@ -1,11 +1,17 @@
 apiVersion: batch/v1
 kind: Job
 metadata:
+  # Name is intentionally generic — CI should run:
+  #   kubectl delete job db-migrate -n codefyve --ignore-not-found
+  # before applying, or inject a unique name via kustomize/helm.
   name: db-migrate
   namespace: codefyve
   labels:
     app.kubernetes.io/name: codefyve
     app.kubernetes.io/component: migration
+  annotations:
+    # Automatically cleans up completed/failed jobs after 5 minutes
+    helm.sh/hook-delete-policy: before-hook-creation
 spec:
   ttlSecondsAfterFinished: 300
   backoffLimit: 3

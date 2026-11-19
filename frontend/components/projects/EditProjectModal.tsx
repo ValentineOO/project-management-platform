@@ -103,32 +103,34 @@ function EditProjectForm({ project, teams, onClose, onUpdated }: FormProps) {
         {errors.name && <p id={`${nameId}-err`} role="alert" className="text-xs text-destructive">{errors.name}</p>}
       </div>
 
-      <div className="space-y-1.5">
-        <Label htmlFor={statusId}>Status</Label>
-        <Select value={status} onValueChange={(v) => setStatus(v as Project['status'])}>
-          <SelectTrigger id={statusId}>
-            <span>{selectedStatusLabel}</span>
-          </SelectTrigger>
-          <SelectContent>
-            {STATUS_OPTIONS.map((o) => (
-              <SelectItem key={o.value} value={o.value}>{o.label}</SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-      </div>
+      <div className="grid grid-cols-2 gap-4">
+        <div className="space-y-1.5">
+          <Label htmlFor={statusId}>Status</Label>
+          <Select value={status} onValueChange={(v) => setStatus(v as Project['status'])}>
+            <SelectTrigger id={statusId} className="w-full">
+              <span>{selectedStatusLabel}</span>
+            </SelectTrigger>
+            <SelectContent>
+              {STATUS_OPTIONS.map((o) => (
+                <SelectItem key={o.value} value={o.value}>{o.label}</SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
 
-      <div className="space-y-1.5">
-        <Label htmlFor={teamId}>Team</Label>
-        <Select value={String(selectedTeamId)} onValueChange={(v) => setSelectedTeamId(Number(v))}>
-          <SelectTrigger id={teamId}>
-            <span>{selectedTeamName ?? 'Select team'}</span>
-          </SelectTrigger>
-          <SelectContent>
-            {teams.map((t) => (
-              <SelectItem key={t.id} value={String(t.id)}>{t.name}</SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
+        <div className="space-y-1.5">
+          <Label htmlFor={teamId}>Team</Label>
+          <Select value={String(selectedTeamId)} onValueChange={(v) => setSelectedTeamId(Number(v))}>
+            <SelectTrigger id={teamId} className="w-full">
+              <span>{selectedTeamName ?? 'Select team'}</span>
+            </SelectTrigger>
+            <SelectContent>
+              {teams.map((t) => (
+                <SelectItem key={t.id} value={String(t.id)}>{t.name}</SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
       </div>
 
       <div className="space-y-1.5">
