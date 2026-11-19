@@ -99,8 +99,8 @@ export function CreateProjectModal({ open, onClose, teams, onCreate }: CreatePro
             <Button type="button" variant="outline" onClick={onClose} disabled={loading}>
               Cancel
             </Button>
-            <Button type="submit" disabled={loading}>
-              Create project
+            <Button type="submit" disabled={loading} aria-busy={loading}>
+              {loading ? 'Creating…' : 'Create project'}
             </Button>
           </div>
         </form>

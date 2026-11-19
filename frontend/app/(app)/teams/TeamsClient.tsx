@@ -143,7 +143,9 @@ function CreateTeamModal({
             <Button type="button" variant="outline" onClick={onClose} disabled={loading}>
               Cancel
             </Button>
-            <Button type="submit" disabled={loading}>Create team</Button>
+            <Button type="submit" disabled={loading} aria-busy={loading}>
+              {loading ? 'Creating…' : 'Create team'}
+            </Button>
           </div>
         </form>
       </DialogContent>

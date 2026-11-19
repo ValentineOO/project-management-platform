@@ -1,11 +1,11 @@
 'use client'
 
-import { useId } from 'react'
+import { useId, useState } from 'react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
+import { Select, SelectContent, SelectItem, SelectTrigger } from '@/components/ui/select'
 import { STATUS_LABELS, PRIORITY_LABELS } from '@/lib/utils'
 import type { TaskStatus, TaskPriority, User } from '@/types'
 
@@ -43,19 +43,30 @@ export function TaskForm({
   const descId = useId()
   const dueDateId = useId()
 
+  // Controlled state so trigger displays the human label, not the raw enum value
+  const [status, setStatus] = useState<string>(defaultValues?.status ?? 'todo')
+  const [priority, setPriority] = useState<string>(defaultValues?.priority ?? 'medium')
+  const [assigneeId, setAssigneeId] = useState<string>(
+    defaultValues?.assignee_id != null ? String(defaultValues.assignee_id) : '',
+  )
+
   function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault()
     const fd = new FormData(e.currentTarget)
-    const rawAssignee = fd.get('assignee_id') as string
     onSubmit({
       title: fd.get('title') as string,
-      description: (fd.get('description') as string) || undefined,
-      status: fd.get('status') as string,
-      priority: fd.get('priority') as string,
-      assignee_id: rawAssignee === '' ? null : rawAssignee ? Number(rawAssignee) : undefined,
-      due_date: (fd.get('due_date') as string) || undefined,
+      description: (fd.get('description') as string) || null,
+      status,
+      priority,
+      assignee_id: assigneeId === '' ? null : Number(assigneeId),
+      due_date: (fd.get('due_date') as string) || null,
     })
   }
+
+  const assigneeName =
+    assigneeId === ''
+      ? 'Unassigned'
+      : (members.find((m) => String(m.id) === assigneeId)?.name ?? 'Unassigned')
 
   return (
     <form onSubmit={handleSubmit} noValidate className="space-y-4 mt-1">
@@ -73,7 +84,9 @@ export function TaskForm({
           aria-describedby={errors.title ? `${titleId}-err` : undefined}
         />
         {errors.title && (
-          <p id={`${titleId}-err`} role="alert" className="text-xs text-destructive">{errors.title}</p>
+          <p id={`${titleId}-err`} role="alert" className="text-xs text-destructive">
+            {errors.title}
+          </p>
         )}
       </div>
 
@@ -91,9 +104,9 @@ export function TaskForm({
       <div className="grid grid-cols-2 gap-4">
         <div className="space-y-1.5">
           <Label>Status</Label>
-          <Select name="status" defaultValue={defaultValues?.status ?? 'todo'}>
+          <Select value={status} onValueChange={(v) => v && setStatus(v)}>
             <SelectTrigger aria-label="Status">
-              <SelectValue />
+              <span>{STATUS_LABELS[status as TaskStatus] ?? status}</span>
             </SelectTrigger>
             <SelectContent>
               {(Object.keys(STATUS_LABELS) as TaskStatus[]).map((s) => (
@@ -105,9 +118,9 @@ export function TaskForm({
 
         <div className="space-y-1.5">
           <Label>Priority</Label>
-          <Select name="priority" defaultValue={defaultValues?.priority ?? 'medium'}>
+          <Select value={priority} onValueChange={(v) => v && setPriority(v)}>
             <SelectTrigger aria-label="Priority">
-              <SelectValue />
+              <span>{PRIORITY_LABELS[priority as TaskPriority] ?? priority}</span>
             </SelectTrigger>
             <SelectContent>
               {(Object.keys(PRIORITY_LABELS) as TaskPriority[]).map((p) => (
@@ -121,9 +134,9 @@ export function TaskForm({
       {members.length > 0 && (
         <div className="space-y-1.5">
           <Label>Assignee</Label>
-          <Select name="assignee_id" defaultValue={defaultValues?.assignee_id ? String(defaultValues.assignee_id) : ''}>
+          <Select value={assigneeId} onValueChange={(v) => setAssigneeId(v ?? '')}>
             <SelectTrigger aria-label="Assignee">
-              <SelectValue placeholder="Unassigned" />
+              <span>{assigneeName}</span>
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="">Unassigned</SelectItem>
@@ -153,7 +166,7 @@ export function TaskForm({
         <Button type="button" variant="outline" onClick={onCancel} disabled={submitting}>
           Cancel
         </Button>
-        <Button type="submit" disabled={submitting || disabled}>
+        <Button type="submit" disabled={submitting || disabled} aria-busy={submitting}>
           {submitLabel}
         </Button>
       </div>

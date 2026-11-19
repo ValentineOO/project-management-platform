@@ -45,7 +45,7 @@ export function CreateTaskModal({ open, onClose, members, onCreate }: CreateTask
           members={members}
           errors={errors}
           submitting={submitting}
-          submitLabel="Create task"
+          submitLabel={submitting ? 'Creating…' : 'Create task'}
           onSubmit={handleSubmit}
           onCancel={handleClose}
         />

@@ -70,7 +70,7 @@ export function EditTaskModal({ open, onClose, task, members, onUpdate }: EditTa
           errors={errors}
           submitting={submitting}
           disabled={!!conflict}
-          submitLabel="Save changes"
+          submitLabel={submitting ? 'Saving…' : 'Save changes'}
           onSubmit={handleSubmit}
           onCancel={handleClose}
         />
