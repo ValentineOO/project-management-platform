@@ -1,6 +1,7 @@
 'use client'
 
 import { useCallback, useEffect, useState } from 'react'
+import { toast } from 'sonner'
 import { fetchTeams } from '@/services/teams'
 import { fetchTeamProjects, createProject as createProjectService } from '@/services/projects'
 import { extractApiErrors } from '@/lib/utils'
@@ -59,8 +60,10 @@ export function useProjects() {
           ? { ...cache, projects: [entry, ...cache.projects] }
           : null
         setProjects((prev) => [entry, ...prev])
+        toast.success('Project created')
         return { ok: true as const }
       } catch (err) {
+        toast.error('Failed to create project')
         return { ok: false as const, errors: extractApiErrors(err) }
       }
     },

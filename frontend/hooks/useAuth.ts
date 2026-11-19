@@ -2,6 +2,7 @@
 
 import { useRouter } from 'next/navigation'
 import { useCallback, useState } from 'react'
+import { toast } from 'sonner'
 import { useAuthContext } from '@/contexts/AuthContext'
 import * as authService from '@/services/auth'
 import { extractApiErrors } from '@/lib/utils'
@@ -58,6 +59,7 @@ export function useAuth() {
       // session may already be expired server-side — clear locally regardless
     } finally {
       setUser(null)
+      toast.success('Signed out successfully')
       router.push('/login')
     }
   }, [setUser, router])

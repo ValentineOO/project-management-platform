@@ -1,6 +1,7 @@
 'use client'
 
 import { useCallback, useEffect, useRef, useState } from 'react'
+import { toast } from 'sonner'
 import {
   fetchProjectTasks,
   createTask as createTaskService,
@@ -56,8 +57,10 @@ export function useTasks(projectId: number) {
       try {
         const task = await createTaskService(projectId, payload)
         setTasks((prev) => [task, ...prev])
+        toast.success('Task created')
         return { ok: true as const }
       } catch (err) {
+        toast.error('Failed to create task')
         return { ok: false as const, errors: extractApiErrors(err) }
       }
     },
@@ -69,14 +72,17 @@ export function useTasks(projectId: number) {
       try {
         const updated = await updateTaskService(taskId, payload)
         setTasks((prev) => prev.map((t) => (t.id === taskId ? updated : t)))
+        toast.success('Task updated')
         return { ok: true as const }
       } catch (err: unknown) {
         const status = (err as { response?: { status?: number; data?: { current?: Task } } })
           ?.response?.status
         if (status === 409) {
           const current = (err as { response: { data: { current: Task } } }).response.data.current
+          toast.warning('Update conflict — this task was modified by someone else')
           return { ok: false as const, conflict: { current } as TaskConflict }
         }
+        toast.error('Failed to update task')
         return { ok: false as const, errors: extractApiErrors(err) }
       }
     },
@@ -87,8 +93,10 @@ export function useTasks(projectId: number) {
     try {
       await deleteTaskService(taskId)
       setTasks((prev) => prev.filter((t) => t.id !== taskId))
+      toast.success('Task deleted')
       return { ok: true as const }
     } catch (err) {
+      toast.error('Failed to delete task')
       return { ok: false as const, errors: extractApiErrors(err) }
     }
   }, [])

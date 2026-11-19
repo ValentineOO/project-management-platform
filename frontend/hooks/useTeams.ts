@@ -1,6 +1,7 @@
 'use client'
 
 import { useCallback, useEffect, useState } from 'react'
+import { toast } from 'sonner'
 import { fetchTeams, createTeam as createTeamService } from '@/services/teams'
 import { extractApiErrors } from '@/lib/utils'
 import type { Team } from '@/types'
@@ -34,8 +35,10 @@ export function useTeams() {
       const team = await createTeamService({ name, description })
       teamsCache = [team, ...(teamsCache ?? [])]
       setTeams((prev) => [team, ...prev])
+      toast.success('Team created')
       return { ok: true as const }
     } catch (err) {
+      toast.error('Failed to create team')
       return { ok: false as const, errors: extractApiErrors(err) }
     }
   }, [])
