@@ -27,6 +27,13 @@ export function ProjectDetailClient({ projectId }: ProjectDetailClientProps) {
   const [showCreate, setShowCreate] = useState(false)
   const [editing, setEditing] = useState<Task | null>(null)
 
+  const liveStats: Record<string, number> = loading
+    ? taskStats
+    : tasks.reduce<Record<string, number>>((acc, t) => {
+        acc[t.status] = (acc[t.status] ?? 0) + 1
+        return acc
+      }, {})
+
   if (loadingProject) {
     return (
       <div className="space-y-6" aria-busy="true" aria-label="Loading project">
@@ -69,7 +76,7 @@ export function ProjectDetailClient({ projectId }: ProjectDetailClientProps) {
         </div>
       </div>
 
-      <ProjectProgress stats={taskStats} members={members} />
+      <ProjectProgress stats={liveStats} members={members} />
 
       {error && <p role="alert" className="text-sm text-destructive">{error}</p>}
 

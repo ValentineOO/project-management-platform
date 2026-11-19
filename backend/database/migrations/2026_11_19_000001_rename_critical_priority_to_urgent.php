@@ -7,8 +7,8 @@ return new class extends Migration
 {
     public function up(): void
     {
-        DB::statement("UPDATE tasks SET priority = 'urgent' WHERE priority = 'critical'");
         DB::statement("ALTER TABLE tasks DROP CONSTRAINT IF EXISTS tasks_priority_check");
+        DB::statement("UPDATE tasks SET priority = 'urgent' WHERE priority = 'critical'");
         DB::statement("ALTER TABLE tasks ADD CONSTRAINT tasks_priority_check CHECK (priority IN ('low', 'medium', 'high', 'urgent'))");
     }
 
