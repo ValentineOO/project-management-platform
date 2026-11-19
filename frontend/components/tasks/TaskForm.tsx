@@ -2,6 +2,7 @@
 
 import { useId, useState } from 'react'
 import { Button } from '@/components/ui/button'
+import { DatePicker } from '@/components/ui/date-picker'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
@@ -49,6 +50,7 @@ export function TaskForm({
   const [assigneeId, setAssigneeId] = useState<string>(
     defaultValues?.assignee_id != null ? String(defaultValues.assignee_id) : '',
   )
+  const [dueDate, setDueDate] = useState<string | null>(defaultValues?.due_date ?? null)
 
   function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault()
@@ -59,7 +61,7 @@ export function TaskForm({
       status,
       priority,
       assignee_id: assigneeId === '' ? null : Number(assigneeId),
-      due_date: (fd.get('due_date') as string) || null,
+      due_date: dueDate || null,
     })
   }
 
@@ -150,11 +152,12 @@ export function TaskForm({
 
       <div className="space-y-1.5">
         <Label htmlFor={dueDateId}>Due date</Label>
-        <Input
+        <DatePicker
           id={dueDateId}
-          name="due_date"
-          type="date"
-          defaultValue={defaultValues?.due_date?.slice(0, 10) ?? ''}
+          value={dueDate}
+          onChange={setDueDate}
+          placeholder="No due date"
+          disabled={submitting || disabled}
         />
       </div>
 
